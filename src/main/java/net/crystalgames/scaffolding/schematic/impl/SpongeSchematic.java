@@ -1,25 +1,23 @@
 package net.crystalgames.scaffolding.schematic.impl;
 
-import kotlin.Pair;
 import net.crystalgames.scaffolding.region.Region;
-import net.crystalgames.scaffolding.schematic.Schematic;
+import net.crystalgames.scaffolding.schematic.AbstractSchematic;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.AbsoluteBlockBatch;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
-import org.jglrxavpok.hephaistos.nbt.*;
+import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+import org.jglrxavpok.hephaistos.nbt.NBTException;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 // https://github.com/EngineHub/WorldEdit/blob/303f5a76b2df70d63480f2126c9ef4b228eb3c59/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/SpongeSchematicReader.java#L261-L297
-public class SpongeSchematic implements Schematic {
-
-    private final File file;
+public class SpongeSchematic extends AbstractSchematic {
 
     private final List<Region.Block> regionBlocks = new ArrayList<>();
 
@@ -30,22 +28,19 @@ public class SpongeSchematic implements Schematic {
 
     private byte[] blocksData;
 
-    public SpongeSchematic(File file) {
-        this.file = file;
+    public SpongeSchematic(InputStream inputStream) throws IOException, NBTException {
+        super(inputStream);
+    }
+
+    public SpongeSchematic(NBTCompound nbtTag) {
+        super(nbtTag);
     }
 
     @Override
-    public void read() throws IOException, NBTException {
-        try (NBTReader reader = new NBTReader(file, CompressedProcesser.GZIP)) {
-            Pair<String, NBT> pair = reader.readNamed();
-            NBTCompound nbtTag = (NBTCompound) pair.getSecond();
-
-            if(!pair.getFirst().equals("Schematic")) throw new NBTException("Invalid Schematic: Not a Schematic");
-
-            readSizes(nbtTag);
-            readBlockPalette(nbtTag);
-            readBlocks();
-        }
+    public void read() throws NBTException {
+        readSizes(nbtTag);
+        readBlockPalette(nbtTag);
+        readBlocks();
     }
 
     private void readSizes(@NotNull NBTCompound nbtTag) throws NBTException {
@@ -92,16 +87,16 @@ public class SpongeSchematic implements Schematic {
         int index = 0;
         int i = 0;
         int value;
-        int varintLength;
+        int varIntLength;
         List<String> paletteKeys = new ArrayList<>(palette.keySet());
 
         while (i < this.blocksData.length) {
             value = 0;
-            varintLength = 0;
+            varIntLength = 0;
 
             while (true) {
-                value |= (this.blocksData[i] & 127) << (varintLength++ * 7);
-                if (varintLength > 5) throw new NBTException("Invalid Schematic: BlockData has invalid length");
+                value |= (this.blocksData[i] & 127) << (varIntLength++ * 7);
+                if (varIntLength > 5) throw new NBTException("Invalid Schematic: BlockData has invalid length");
                 if ((this.blocksData[i] & 128) != 128) {
                     i++;
                     break;
@@ -161,7 +156,6 @@ public class SpongeSchematic implements Schematic {
         if (states.startsWith("[")) {
             String[] stateArray = states.substring(1, states.length() - 1).split(",");
             Map<String, String> properties = new HashMap<>(block.properties());
-            System.out.println(properties);
             for (String state : stateArray) {
                 String[] split = state.split("=");
                 properties.replace(split[0], split[1]);

@@ -1,27 +1,25 @@
 package net.crystalgames.scaffolding.schematic.impl;
 
-import kotlin.Pair;
 import net.crystalgames.scaffolding.region.Region;
-import net.crystalgames.scaffolding.schematic.Schematic;
+import net.crystalgames.scaffolding.schematic.AbstractSchematic;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.AbsoluteBlockBatch;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
-import org.jglrxavpok.hephaistos.nbt.*;
+import org.jglrxavpok.hephaistos.nbt.NBTCompound;
+import org.jglrxavpok.hephaistos.nbt.NBTException;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 // https://github.com/EngineHub/WorldEdit/blob/version/5.x/src/main/java/com/sk89q/worldedit/schematic/MCEditSchematicFormat.java
-public class MCEditSchematic implements Schematic {
-
-    private final File file;
+public class MCEditSchematic extends AbstractSchematic {
 
     private final List<Region.Block> regionBlocks = new ArrayList<>();
 
@@ -33,23 +31,21 @@ public class MCEditSchematic implements Schematic {
     private byte[] addId;
     private short[] blocks;
 
-    public MCEditSchematic(File file) {
-        this.file = file;
+    public MCEditSchematic(InputStream inputStream) throws IOException, NBTException {
+        super(inputStream);
+    }
+
+    public MCEditSchematic(NBTCompound nbtTag) {
+        super(nbtTag);
     }
 
     @Override
-    public void read() throws IOException, NBTException {
-        try (NBTReader reader = new NBTReader(file, CompressedProcesser.GZIP)) {
-            Pair<String, NBT> pair = reader.readNamed();
-            NBTCompound nbtTag = (NBTCompound) pair.getSecond();
+    public void read() throws NBTException {
+        if (!nbtTag.containsKey("Blocks")) throw new NBTException("Invalid Schematic: No Blocks");
 
-            if (!pair.getFirst().equals("Schematic")) throw new NBTException("Invalid Schematic: Not a Schematic");
-            if (!nbtTag.containsKey("Blocks")) throw new NBTException("Invalid Schematic: No Blocks");
-
-            readSizes(nbtTag);
-            readBlocksData(nbtTag);
-            readBlocks();
-        }
+        readSizes(nbtTag);
+        readBlocksData(nbtTag);
+        readBlocks();
     }
 
     private void readSizes(@NotNull NBTCompound nbtTag) throws NBTException {
@@ -69,29 +65,26 @@ public class MCEditSchematic implements Schematic {
 
     private void readBlocksData(@NotNull NBTCompound nbtTag) throws NBTException {
         String materials = nbtTag.getString("Materials");
-        if (this.materials == null || !this.materials.equals("Alpha")) throw new NBTException("Invalid Schematic: Invalid Materials");
+        if (materials == null || !materials.equals("Alpha")) throw new NBTException("Invalid Schematic: Invalid Materials");
         this.materials = materials;
 
-        ImmutableByteArray blockId = nbtTag.getByteArray("Blocks");
-        if (blockId == null) throw new NBTException("Invalid Schematic: No Blocks");
-        byte[] blockId1 = blockId.copyArray();
+        ImmutableByteArray blockIdPre = nbtTag.getByteArray("Blocks");
+        if (blockIdPre == null) throw new NBTException("Invalid Schematic: No Blocks");
+        byte[] blockId = blockIdPre.copyArray();
 
         ImmutableByteArray blocksData = nbtTag.getByteArray("Data");
         if (blocksData == null) throw new NBTException("Invalid Schematic: No Block Data");
         blocksData.copyArray();
 
         if (nbtTag.containsKey("AddBlocks")) addId = Objects.requireNonNull(nbtTag.getByteArray("AddBlocks")).copyArray();
+        else addId = new byte[0];
 
-        blocks = new short[blockId1.length];
-        for (int index = 0; index < blockId1.length; index++) {
-            if ((index >> 1) >= this.addId.length) {
-                this.blocks[index] = (short) (blockId1[index] & 0xFF);
-            } else {
-                if ((index & 1) == 0) {
-                    this.blocks[index] = (short) (((this.addId[index >> 1] & 0x0F) << 8) + (blockId1[index] & 0xFF));
-                } else {
-                    this.blocks[index] = (short) (((this.addId[index >> 1] & 0xF0) << 4) + (blockId1[index] & 0xFF));
-                }
+        blocks = new short[blockId.length];
+        for (int index = 0; index < blockId.length; index++) {
+            if ((index >> 1) >= this.addId.length) this.blocks[index] = (short) (blockId[index] & 0xFF);
+            else {
+                if ((index & 1) == 0) this.blocks[index] = (short) (((this.addId[index >> 1] & 0x0F) << 8) + (blockId[index] & 0xFF));
+                else this.blocks[index] = (short) (((this.addId[index >> 1] & 0xF0) << 4) + (blockId[index] & 0xFF));
             }
         }
     }

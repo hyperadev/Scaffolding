@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface Schematic {
 
-    void read() throws IOException, NBTException;
+    void read() throws NBTException;
     void write(Region region) throws IOException;
     CompletableFuture<Region> build(Instance instance, Pos position);
 
