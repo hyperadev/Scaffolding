@@ -35,4 +35,15 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>crystalgames</id>
+            <url>https://repo.crystalgames.net/internal/</url>
+        </repository>
+        <snapshotRepository>
+            <id>crystalgames</id>
+            <url>https://repo.crystalgames.net/internal/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
