@@ -4,6 +4,8 @@ import kotlin.Pair;
 import net.crystalgames.scaffolding.schematic.Schematic;
 import net.crystalgames.scaffolding.schematic.impl.MCEditSchematic;
 import net.crystalgames.scaffolding.schematic.impl.SpongeSchematic;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.*;
 
 import java.io.*;
@@ -17,7 +19,7 @@ public class Scaffolding {
      * @throws IOException if the input stream is invalid
      * @throws NBTException if the schematic is invalid
      */
-    public static Schematic fromStream(InputStream inputStream) throws IOException, NBTException {
+    public static @Nullable Schematic fromStream(@NotNull InputStream inputStream) throws IOException, NBTException {
         NBTReader reader = new NBTReader(inputStream, CompressedProcesser.GZIP);
         Pair<String, NBT> pair = reader.readNamed();
         NBTCompound nbtTag = (NBTCompound) pair.getSecond();
@@ -34,7 +36,7 @@ public class Scaffolding {
      * @throws IOException if the file is invalid
      * @throws NBTException if the schematic is invalid
      */
-    public static Schematic fromFile(File file) throws IOException, NBTException {
+    public static @Nullable Schematic fromFile(@NotNull File file) throws IOException, NBTException {
         if (!file.exists()) throw new FileNotFoundException("Invalid Schematic: File does not exist");
         return fromStream(new FileInputStream(file));
     }

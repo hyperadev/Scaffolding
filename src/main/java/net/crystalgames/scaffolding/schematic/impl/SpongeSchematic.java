@@ -29,10 +29,20 @@ public class SpongeSchematic extends AbstractSchematic {
 
     private boolean read = false;
 
+    /**
+     * Creates a Sponge schematic from an input stream.
+     * @param inputStream the input stream
+     * @throws IOException if the input stream is invalid
+     * @throws NBTException if the schematic is invalid
+     */
     public SpongeSchematic(InputStream inputStream) throws IOException, NBTException {
         super(inputStream);
     }
 
+    /**
+     * Creates a Sponge schematic from NBT.
+     * @param nbtTag the NBT tag
+     */
     public SpongeSchematic(NBTCompound nbtTag) {
         super(nbtTag);
     }

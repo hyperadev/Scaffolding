@@ -30,10 +30,20 @@ public class MCEditSchematic extends AbstractSchematic {
 
     private boolean read = false;
 
+    /**
+     * Creates an MCEdit schematic from an input stream.
+     * @param inputStream the input stream
+     * @throws IOException if the input stream is invalid
+     * @throws NBTException if the schematic is invalid
+     */
     public MCEditSchematic(InputStream inputStream) throws IOException, NBTException {
         super(inputStream);
     }
 
+    /**
+     * Creates an MCEdit schematic from NBT.
+     * @param nbtTag the NBT tag
+     */
     public MCEditSchematic(NBTCompound nbtTag) {
         super(nbtTag);
     }
