@@ -25,8 +25,9 @@ public class SpongeSchematic extends AbstractSchematic {
     private short height;
     private short length;
     private Map<String, Integer> palette = new HashMap<>();
-
     private byte[] blocksData;
+
+    private boolean read = false;
 
     public SpongeSchematic(InputStream inputStream) throws IOException, NBTException {
         super(inputStream);
@@ -41,6 +42,8 @@ public class SpongeSchematic extends AbstractSchematic {
         readSizes(nbtTag);
         readBlockPalette(nbtTag);
         readBlocks();
+
+        read = true;
     }
 
     private void readSizes(@NotNull NBTCompound nbtTag) throws NBTException {
@@ -125,6 +128,7 @@ public class SpongeSchematic extends AbstractSchematic {
 
     @Override
     public CompletableFuture<Region> build(Instance instance, Pos position) {
+        if (!read) throw new IllegalStateException("Schematic not read");
         CompletableFuture<Region> future = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             AbsoluteBlockBatch blockBatch = new AbsoluteBlockBatch();

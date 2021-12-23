@@ -26,10 +26,9 @@ public class MCEditSchematic extends AbstractSchematic {
     private short width;
     private short height;
     private short length;
-
-    private String materials;
-    private byte[] addId;
     private short[] blocks;
+
+    private boolean read = false;
 
     public MCEditSchematic(InputStream inputStream) throws IOException, NBTException {
         super(inputStream);
@@ -46,6 +45,8 @@ public class MCEditSchematic extends AbstractSchematic {
         readSizes(nbtTag);
         readBlocksData(nbtTag);
         readBlocks();
+
+        read = true;
     }
 
     private void readSizes(@NotNull NBTCompound nbtTag) throws NBTException {
@@ -66,7 +67,6 @@ public class MCEditSchematic extends AbstractSchematic {
     private void readBlocksData(@NotNull NBTCompound nbtTag) throws NBTException {
         String materials = nbtTag.getString("Materials");
         if (materials == null || !materials.equals("Alpha")) throw new NBTException("Invalid Schematic: Invalid Materials");
-        this.materials = materials;
 
         ImmutableByteArray blockIdPre = nbtTag.getByteArray("Blocks");
         if (blockIdPre == null) throw new NBTException("Invalid Schematic: No Blocks");
@@ -76,15 +76,16 @@ public class MCEditSchematic extends AbstractSchematic {
         if (blocksData == null) throw new NBTException("Invalid Schematic: No Block Data");
         blocksData.copyArray();
 
+        byte[] addId;
         if (nbtTag.containsKey("AddBlocks")) addId = Objects.requireNonNull(nbtTag.getByteArray("AddBlocks")).copyArray();
         else addId = new byte[0];
 
         blocks = new short[blockId.length];
         for (int index = 0; index < blockId.length; index++) {
-            if ((index >> 1) >= this.addId.length) this.blocks[index] = (short) (blockId[index] & 0xFF);
+            if ((index >> 1) >= addId.length) this.blocks[index] = (short) (blockId[index] & 0xFF);
             else {
-                if ((index & 1) == 0) this.blocks[index] = (short) (((this.addId[index >> 1] & 0x0F) << 8) + (blockId[index] & 0xFF));
-                else this.blocks[index] = (short) (((this.addId[index >> 1] & 0xF0) << 4) + (blockId[index] & 0xFF));
+                if ((index & 1) == 0) this.blocks[index] = (short) (((addId[index >> 1] & 0x0F) << 8) + (blockId[index] & 0xFF));
+                else this.blocks[index] = (short) (((addId[index >> 1] & 0xF0) << 4) + (blockId[index] & 0xFF));
             }
         }
     }
@@ -108,6 +109,7 @@ public class MCEditSchematic extends AbstractSchematic {
 
     @Override
     public CompletableFuture<Region> build(Instance instance, Pos position) {
+        if (!read) throw new IllegalStateException("Schematic not read");
         CompletableFuture<Region> future = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {
             AbsoluteBlockBatch blockBatch = new AbsoluteBlockBatch();
