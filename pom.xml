@@ -38,11 +38,11 @@
     <distributionManagement>
         <repository>
             <id>crystalgames</id>
-            <url>https://repo.crystalgames.net/internal/</url>
+            <url>https://repo.crystalgames.net/releases/</url>
         </repository>
         <snapshotRepository>
             <id>crystalgames</id>
-            <url>https://repo.crystalgames.net/internal/</url>
+            <url>https://repo.crystalgames.net/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
