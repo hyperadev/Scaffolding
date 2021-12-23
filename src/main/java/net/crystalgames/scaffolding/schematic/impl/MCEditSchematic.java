@@ -1,7 +1,7 @@
 package net.crystalgames.scaffolding.schematic.impl;
 
 import net.crystalgames.scaffolding.region.Region;
-import net.crystalgames.scaffolding.schematic.AbstractSchematic;
+import net.crystalgames.scaffolding.schematic.Schematic;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.AbsoluteBlockBatch;
@@ -11,15 +11,14 @@ import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 // https://github.com/EngineHub/WorldEdit/blob/version/5.x/src/main/java/com/sk89q/worldedit/schematic/MCEditSchematicFormat.java
-public class MCEditSchematic extends AbstractSchematic {
+public class MCEditSchematic implements Schematic {
 
     private final List<Region.Block> regionBlocks = new ArrayList<>();
 
@@ -30,26 +29,8 @@ public class MCEditSchematic extends AbstractSchematic {
 
     private boolean read = false;
 
-    /**
-     * Creates an MCEdit schematic from an input stream.
-     * @param inputStream the input stream
-     * @throws IOException if the input stream is invalid
-     * @throws NBTException if the schematic is invalid
-     */
-    public MCEditSchematic(InputStream inputStream) throws IOException, NBTException {
-        super(inputStream);
-    }
-
-    /**
-     * Creates an MCEdit schematic from NBT.
-     * @param nbtTag the NBT tag
-     */
-    public MCEditSchematic(NBTCompound nbtTag) {
-        super(nbtTag);
-    }
-
     @Override
-    public void read() throws NBTException {
+    public void read(NBTCompound nbtTag) throws NBTException {
         if (!nbtTag.containsKey("Blocks")) throw new NBTException("Invalid Schematic: No Blocks");
 
         readSizes(nbtTag);
@@ -113,7 +94,7 @@ public class MCEditSchematic extends AbstractSchematic {
     }
 
     @Override
-    public void write(Region region) {
+    public void write(OutputStream outputStream, Region region) {
         // TODO: Complete
     }
 

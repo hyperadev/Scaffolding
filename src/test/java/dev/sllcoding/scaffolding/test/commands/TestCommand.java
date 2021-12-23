@@ -22,8 +22,6 @@ public class TestCommand extends Command {
                 Instance instance = player.getInstance();
                 Pos position = player.getPosition();
 
-                schematic.read();
-
                 schematic.build(instance, position).thenRun(() -> player.sendMessage("Done!"));
             } catch (Exception e) {
                 e.printStackTrace();

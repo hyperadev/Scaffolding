@@ -24,9 +24,12 @@ public class Scaffolding {
         Pair<String, NBT> pair = reader.readNamed();
         NBTCompound nbtTag = (NBTCompound) pair.getSecond();
 
-        if (nbtTag.contains("Blocks")) return new MCEditSchematic(nbtTag);
-        else if (nbtTag.contains("Palette")) return new SpongeSchematic(nbtTag);
-        else return null;
+        Schematic schematic = null;
+        if (nbtTag.contains("Blocks")) schematic = new MCEditSchematic();
+        else if (nbtTag.contains("Palette")) schematic = new SpongeSchematic();
+
+        if (schematic != null) schematic.read(nbtTag);
+        return schematic;
     }
 
     /**

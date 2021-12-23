@@ -142,4 +142,8 @@ buildNumber.properties
 ### Minestom ###
 extensions/
 
+### Scaffolding ###
+*.schematic
+*.schem
+
 # End of https://www.toptal.com/developers/gitignore/api/maven,intellij+all,java

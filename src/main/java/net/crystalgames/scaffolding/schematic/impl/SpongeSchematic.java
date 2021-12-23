@@ -1,7 +1,7 @@
 package net.crystalgames.scaffolding.schematic.impl;
 
 import net.crystalgames.scaffolding.region.Region;
-import net.crystalgames.scaffolding.schematic.AbstractSchematic;
+import net.crystalgames.scaffolding.schematic.Schematic;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.AbsoluteBlockBatch;
@@ -11,13 +11,12 @@ import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 // https://github.com/EngineHub/WorldEdit/blob/303f5a76b2df70d63480f2126c9ef4b228eb3c59/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/SpongeSchematicReader.java#L261-L297
-public class SpongeSchematic extends AbstractSchematic {
+public class SpongeSchematic implements Schematic {
 
     private final List<Region.Block> regionBlocks = new ArrayList<>();
 
@@ -29,26 +28,8 @@ public class SpongeSchematic extends AbstractSchematic {
 
     private boolean read = false;
 
-    /**
-     * Creates a Sponge schematic from an input stream.
-     * @param inputStream the input stream
-     * @throws IOException if the input stream is invalid
-     * @throws NBTException if the schematic is invalid
-     */
-    public SpongeSchematic(InputStream inputStream) throws IOException, NBTException {
-        super(inputStream);
-    }
-
-    /**
-     * Creates a Sponge schematic from NBT.
-     * @param nbtTag the NBT tag
-     */
-    public SpongeSchematic(NBTCompound nbtTag) {
-        super(nbtTag);
-    }
-
     @Override
-    public void read() throws NBTException {
+    public void read(NBTCompound nbtTag) throws NBTException {
         readSizes(nbtTag);
         readBlockPalette(nbtTag);
         readBlocks();
@@ -132,7 +113,7 @@ public class SpongeSchematic extends AbstractSchematic {
     }
 
     @Override
-    public void write(Region region) {
+    public void write(OutputStream outputStream, Region region) {
         // TODO: Complete
     }
 
