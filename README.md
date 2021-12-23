@@ -26,3 +26,20 @@ Region region = new Region(new Pos(0, 0, 0), new Pos(10, 10, 10));
 Schematic schematic = new SpongeSchematic();
 schematic.write(new FileOutputStream("schematics/my_schematic.schematic"), region);
 ```
+
+## Build Tools
+### Repository
+```xml
+<repository>
+    <id>crystalgames</id>
+    <url>https://repo.crystalgames.net/snapshots/</url>
+</repository>
+```
+### Dependency
+```xml
+<dependency>
+    <groupId>com.crystalgames</groupId>
+    <artifactId>Scaffolding</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+</dependency>
+```
