@@ -1,5 +1,13 @@
 package net.crystalgames.scaffolding.schematic.impl;
 
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import net.crystalgames.scaffolding.region.Region;
 import net.crystalgames.scaffolding.schematic.Schematic;
 import net.minestom.server.coordinate.Pos;
@@ -10,10 +18,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
-
-import java.io.OutputStream;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 // https://github.com/EngineHub/WorldEdit/blob/303f5a76b2df70d63480f2126c9ef4b228eb3c59/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/SpongeSchematicReader.java#L261-L297
 public class SpongeSchematic implements Schematic {
@@ -129,7 +133,9 @@ public class SpongeSchematic implements Schematic {
                 short stateId = regionBlock.stateId();
 
                 Block block = Block.fromStateId(stateId);
-                if (block != null) blockBatch.setBlock(blockPosition, block);
+                if (block != null) {
+                    blockBatch.setBlock(blockPosition.add(position), block);
+                }
             }
 
             blockBatch.apply(instance, () -> future.complete(new Region(instance, position, position.add(width, height, length))));
