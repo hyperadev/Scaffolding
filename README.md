@@ -38,7 +38,7 @@ schematic.write(new FileOutputStream("schematics/my_schematic.schematic"), regio
 ### Dependency
 ```xml
 <dependency>
-    <groupId>com.crystalgames</groupId>
+    <groupId>net.crystalgames</groupId>
     <artifactId>Scaffolding</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 </dependency>
