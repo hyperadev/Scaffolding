@@ -33,7 +33,9 @@ public class SpongeSchematic implements Schematic {
 
     private boolean read = false;
 
-    private int offsetX, offsetY, offsetZ;
+    private int offsetX;
+    private int offsetY;
+    private int offsetZ;
 
     @Override
     public void read(NBTCompound nbtTag) throws NBTException {
@@ -130,7 +132,6 @@ public class SpongeSchematic implements Schematic {
             String block = paletteKeys.get(value);
             short stateId = getStateId(block);
 
-            //                                               Is adding the height to y needed?
             this.regionBlocks.add(new Region.Block(new Pos(x + offsetX, y + offsetY, z + offsetZ), stateId));
 
             index++;
