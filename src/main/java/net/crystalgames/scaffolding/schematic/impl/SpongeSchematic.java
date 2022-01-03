@@ -1,13 +1,5 @@
 package net.crystalgames.scaffolding.schematic.impl;
 
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import net.crystalgames.scaffolding.region.Region;
 import net.crystalgames.scaffolding.schematic.Schematic;
 import net.minestom.server.coordinate.Pos;
@@ -18,6 +10,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
+
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 // https://github.com/EngineHub/WorldEdit/blob/303f5a76b2df70d63480f2126c9ef4b228eb3c59/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/SpongeSchematicReader.java#L261-L297
 public class SpongeSchematic implements Schematic {
@@ -32,13 +33,32 @@ public class SpongeSchematic implements Schematic {
 
     private boolean read = false;
 
+    private int offsetX, offsetY, offsetZ;
+
     @Override
     public void read(NBTCompound nbtTag) throws NBTException {
         readSizes(nbtTag);
         readBlockPalette(nbtTag);
+        readOffsets(nbtTag);
         readBlocks();
-
         read = true;
+    }
+
+    private void readOffsets(@NotNull NBTCompound nbtTag) throws NBTException {
+        NBTCompound metaData = nbtTag.getCompound("Metadata");
+        if (metaData == null) throw new NBTException("Invalid Schematic: No Metadata");
+
+        Integer weOffsetX = metaData.getInt("WEOffsetX");
+        if (weOffsetX == null) throw new NBTException("Invalid Schematic: No WEOffsetX In Metadata");
+        this.offsetX = weOffsetX;
+
+        Integer weOffsetY = metaData.getInt("WEOffsetY");
+        if (weOffsetY == null) throw new NBTException("Invalid Schematic: No WEOffsetY In Metadata");
+        this.offsetY = weOffsetY;
+
+        Integer weOffsetZ = metaData.getInt("WEOffsetZ");
+        if (weOffsetZ == null) throw new NBTException("Invalid Schematic: No WEOffsetZ In Metadata");
+        this.offsetZ = weOffsetZ;
     }
 
     private void readSizes(@NotNull NBTCompound nbtTag) throws NBTException {
@@ -63,9 +83,10 @@ public class SpongeSchematic implements Schematic {
         if (nbtPalette == null) throw new NBTException("Invalid Schematic: No Palette");
 
         Set<String> keys = nbtPalette.getKeys();
-        if (keys.size() != maxPalette) throw new NBTException("Invalid Schematic: PaletteMax does not match Palette size");
+        if (keys.size() != maxPalette)
+            throw new NBTException("Invalid Schematic: PaletteMax does not match Palette size");
 
-        for(String key : keys) {
+        for (String key : keys) {
             Integer value = nbtPalette.getInt(key);
             if (value == null) throw new NBTException("Invalid Schematic: Palette contains invalid value");
 
@@ -74,7 +95,7 @@ public class SpongeSchematic implements Schematic {
 
         palette = palette.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
-                .collect(LinkedHashMap::new,(map, entry) -> map.put(entry.getKey(), entry.getValue()), LinkedHashMap::putAll);
+                .collect(LinkedHashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue()), LinkedHashMap::putAll);
 
         ImmutableByteArray blocksData = nbtTag.getByteArray("BlockData");
         if (blocksData == null || blocksData.getSize() == 0) throw new NBTException("Invalid Schematic: No BlockData");
@@ -110,7 +131,7 @@ public class SpongeSchematic implements Schematic {
             short stateId = getStateId(block);
 
             //                                               Is adding the height to y needed?
-            this.regionBlocks.add(new Region.Block(new Pos(x, y + height, z), stateId));
+            this.regionBlocks.add(new Region.Block(new Pos(x + offsetX, y + offsetY, z + offsetZ), stateId));
 
             index++;
         }
@@ -137,8 +158,7 @@ public class SpongeSchematic implements Schematic {
                     blockBatch.setBlock(blockPosition.add(position), block);
                 }
             }
-
-            blockBatch.apply(instance, () -> future.complete(new Region(instance, position, position.add(width, height, length))));
+            blockBatch.apply(instance, () -> future.complete(new Region(instance, position, position)));
         });
         return future;
     }
