@@ -28,15 +28,34 @@ public class MCEditSchematic implements Schematic {
 
     private boolean read = false;
 
+    private int offsetX;
+    private int offsetY;
+    private int offsetZ;
+
     @Override
     public void read(NBTCompound nbtTag) throws NBTException {
         if (!nbtTag.containsKey("Blocks")) throw new NBTException("Invalid Schematic: No Blocks");
 
         readSizes(nbtTag);
         readBlocksData(nbtTag);
+        readOffsets(nbtTag);
         readBlocks();
 
         read = true;
+    }
+
+    private void readOffsets(@NotNull NBTCompound nbtTag) throws NBTException {
+        Integer weOffsetX = nbtTag.getInt("WEOffsetX");
+        if (weOffsetX == null) throw new NBTException("Invalid Schematic: No WEOffsetX");
+        this.offsetX = weOffsetX;
+
+        Integer weOffsetY = nbtTag.getInt("WEOffsetY");
+        if (weOffsetY == null) throw new NBTException("Invalid Schematic: No WEOffsetY");
+        this.offsetY = weOffsetY;
+
+        Integer weOffsetZ = nbtTag.getInt("WEOffsetZ");
+        if (weOffsetZ == null) throw new NBTException("Invalid Schematic: No WEOffsetZ");
+        this.offsetZ = weOffsetZ;
     }
 
     private void readSizes(@NotNull NBTCompound nbtTag) throws NBTException {
@@ -86,7 +105,7 @@ public class MCEditSchematic implements Schematic {
                 for (int z = 0; z < length; ++z) {
                     int index = y * width * length + z * width + x;
                     short stateId = this.blocks[index];
-                    regionBlocks.add(new Region.Block(new Pos(x, y, z), stateId));
+                    regionBlocks.add(new Region.Block(new Pos(x+offsetX, y+offsetY, z+offsetZ), stateId));
                 }
             }
         }
@@ -114,7 +133,7 @@ public class MCEditSchematic implements Schematic {
                 }
             }
 
-            blockBatch.apply(instance, () -> future.complete(new Region(instance, position, position.add(width, height, length))));
+            blockBatch.apply(instance, () -> future.complete(new Region(instance, position, position)));
         });
         return future;
     }
