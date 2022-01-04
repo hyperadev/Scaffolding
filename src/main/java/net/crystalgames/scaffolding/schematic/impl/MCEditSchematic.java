@@ -1,10 +1,5 @@
 package net.crystalgames.scaffolding.schematic.impl;
 
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import net.crystalgames.scaffolding.region.Region;
 import net.crystalgames.scaffolding.schematic.Schematic;
 import net.minestom.server.coordinate.Pos;
@@ -15,6 +10,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
+
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 // https://github.com/EngineHub/WorldEdit/blob/version/5.x/src/main/java/com/sk89q/worldedit/schematic/MCEditSchematicFormat.java
 public class MCEditSchematic implements Schematic {
@@ -128,12 +129,10 @@ public class MCEditSchematic implements Schematic {
                 short stateId = regionBlock.stateId();
 
                 Block block = Block.fromStateId(stateId);
-                if (block != null) {
-                    blockBatch.setBlock(blockPosition.add(position), block);
-                }
+                if (block != null) blockBatch.setBlock(blockPosition.add(position), block);
             }
 
-            blockBatch.apply(instance, () -> future.complete(new Region(instance, position, position)));
+            blockBatch.apply(instance, () -> future.complete(new Region(instance, position, position.add(width, height, length))));
         });
         return future;
     }
