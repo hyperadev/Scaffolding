@@ -124,14 +124,16 @@ public class MCEditSchematic implements Schematic {
         CompletableFuture.runAsync(() -> {
             AbsoluteBlockBatch blockBatch = new AbsoluteBlockBatch();
 
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
             for (Region.Block regionBlock : regionBlocks) {
                 Pos blockPosition = regionBlock.position();
                 short stateId = regionBlock.stateId();
 
                 Block block = Block.fromStateId(stateId);
-                if (block != null) blockBatch.setBlock(blockPosition.add(position), block);
+                if (block != null) futures.add(instance.loadOptionalChunk(blockPosition).thenRun(() -> blockBatch.setBlock(blockPosition.add(position), block)));
             }
 
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[]{})).join();
             blockBatch.apply(instance, () -> future.complete(new Region(instance, position, position.add(width, height, length))));
         });
         return future;
