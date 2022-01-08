@@ -22,7 +22,16 @@ public interface Schematic {
         inputStream.close();
     }
     void read(NBTCompound nbtTag) throws NBTException;
+
     void write(OutputStream outputStream, Region region) throws IOException;
     CompletableFuture<Region> build(Instance instance, Pos position);
+
+    short getWidth();
+    short getHeight();
+    short getLength();
+
+    int getOffsetX();
+    int getOffsetY();
+    int getOffsetZ();
 
 }

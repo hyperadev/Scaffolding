@@ -186,4 +186,34 @@ public class SpongeSchematic implements Schematic {
         } else return block.stateId();
     }
 
+    @Override
+    public short getWidth() {
+        return width;
+    }
+
+    @Override
+    public short getHeight() {
+        return height;
+    }
+
+    @Override
+    public short getLength() {
+        return length;
+    }
+
+    @Override
+    public int getOffsetX() {
+        return offsetX;
+    }
+
+    @Override
+    public int getOffsetY() {
+        return offsetY;
+    }
+
+    @Override
+    public int getOffsetZ() {
+        return offsetZ;
+    }
+
 }
