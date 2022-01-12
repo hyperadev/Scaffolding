@@ -40,6 +40,6 @@ schematic.write(new FileOutputStream("schematics/my_schematic.schematic"), regio
 <dependency>
     <groupId>net.crystalgames</groupId>
     <artifactId>Scaffolding</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
 </dependency>
 ```
