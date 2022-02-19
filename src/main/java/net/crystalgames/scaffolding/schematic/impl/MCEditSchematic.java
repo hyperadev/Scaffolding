@@ -169,4 +169,16 @@ public class MCEditSchematic implements Schematic {
         return offsetZ;
     }
 
+    @Override
+    public void apply(Block.@NotNull Setter setter) {
+        for (Region.Block block : regionBlocks) {
+            Pos pos = block.position();
+            Block minestomBlock = Block.fromStateId(block.stateId());
+            if (minestomBlock != null)  {
+                setter.setBlock(pos, minestomBlock);
+            } else {
+                throw new IllegalStateException("Invalid block state id: " + block.stateId());
+            }
+        }
+    }
 }

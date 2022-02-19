@@ -3,6 +3,8 @@ package net.crystalgames.scaffolding.schematic;
 import net.crystalgames.scaffolding.region.Region;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.instance.block.Block;
+import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.CompressedProcesser;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
@@ -34,4 +36,9 @@ public interface Schematic {
     int getOffsetY();
     int getOffsetZ();
 
+    /**
+     * Applies the schematic to the given block setter.
+     * @param setter the block setter
+     */
+    void apply(@NotNull Block.Setter setter);
 }
