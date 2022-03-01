@@ -6,7 +6,7 @@
 
     <groupId>net.crystalgames</groupId>
     <artifactId>Scaffolding</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.2-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
