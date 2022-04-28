@@ -146,11 +146,11 @@ public class SpongeSchematic implements Schematic {
 
             List<CompletableFuture<Void>> futures = new ArrayList<>();
             for (Region.Block regionBlock : regionBlocks) {
-                Pos blockPosition = regionBlock.position();
+                Pos absoluteBlockPosition = regionBlock.position().add(position);
                 short stateId = regionBlock.stateId();
 
                 Block block = Block.fromStateId(stateId);
-                if (block != null) futures.add(instance.loadOptionalChunk(blockPosition).thenRun(() -> blockBatch.setBlock(blockPosition.add(position), block)));
+                if (block != null) futures.add(instance.loadOptionalChunk(absoluteBlockPosition).thenRun(() -> blockBatch.setBlock(absoluteBlockPosition, block)));
             }
 
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[]{})).join();
