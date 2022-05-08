@@ -17,6 +17,7 @@ public record Region(Instance instance, Pos lower, Pos upper) {
         return (upper.blockZ() - lower.blockZ()) + 1;
     }
 
-    public record Block(Pos position, short stateId) {}
+    public record Block(Pos position, short stateId) {
+    }
 
 }

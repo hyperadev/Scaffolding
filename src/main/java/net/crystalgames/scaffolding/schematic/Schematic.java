@@ -23,21 +23,28 @@ public interface Schematic {
         reader.close();
         inputStream.close();
     }
+
     void read(NBTCompound nbtTag) throws NBTException;
 
     void write(OutputStream outputStream, Region region) throws IOException;
+
     CompletableFuture<Region> build(Instance instance, Pos position);
 
     short getWidth();
+
     short getHeight();
+
     short getLength();
 
     int getOffsetX();
+
     int getOffsetY();
+
     int getOffsetZ();
 
     /**
      * Applies the schematic to the given block setter.
+     *
      * @param setter the block setter
      */
     void apply(@NotNull Block.Setter setter);

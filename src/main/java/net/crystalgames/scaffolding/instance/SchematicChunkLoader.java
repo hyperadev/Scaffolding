@@ -55,6 +55,7 @@ public class SchematicChunkLoader implements IChunkLoader {
 
     /**
      * Creates a builder for a {@link SchematicChunkLoader}.
+     *
      * @return The builder.
      */
     public static @NotNull Builder builder() {
@@ -100,6 +101,7 @@ public class SchematicChunkLoader implements IChunkLoader {
          * Note that schematics are loaded in the order they are added.
          * <br>
          * This means that the last added schematic is the only schematic that is guaranteed to have all its data.
+         *
          * @param schematic The schematic to add.
          * @return This builder.
          */
@@ -111,6 +113,7 @@ public class SchematicChunkLoader implements IChunkLoader {
 
         /**
          * Specifies the offset that applies to all schematics added to this chunk loader.
+         *
          * @param x The x offset.
          * @param y The y offset.
          * @param z The z offset.
@@ -125,6 +128,7 @@ public class SchematicChunkLoader implements IChunkLoader {
 
         /**
          * Specifies the handler to use to save the chunks.
+         *
          * @param handler The handler.
          * @return This builder.
          */

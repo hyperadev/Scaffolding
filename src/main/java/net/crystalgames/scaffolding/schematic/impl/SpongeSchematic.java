@@ -80,7 +80,8 @@ public class SpongeSchematic implements Schematic {
         if (nbtPalette == null) throw new NBTException("Invalid Schematic: No Palette");
 
         Set<String> keys = nbtPalette.getKeys();
-        if (keys.size() != maxPalette) throw new NBTException("Invalid Schematic: PaletteMax does not match Palette size");
+        if (keys.size() != maxPalette)
+            throw new NBTException("Invalid Schematic: PaletteMax does not match Palette size");
 
         for (String key : keys) {
             Integer value = nbtPalette.getInt(key);
@@ -150,7 +151,8 @@ public class SpongeSchematic implements Schematic {
                 short stateId = regionBlock.stateId();
 
                 Block block = Block.fromStateId(stateId);
-                if (block != null) futures.add(instance.loadOptionalChunk(absoluteBlockPosition).thenRun(() -> blockBatch.setBlock(absoluteBlockPosition, block)));
+                if (block != null)
+                    futures.add(instance.loadOptionalChunk(absoluteBlockPosition).thenRun(() -> blockBatch.setBlock(absoluteBlockPosition, block)));
             }
 
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[]{})).join();
@@ -221,7 +223,7 @@ public class SpongeSchematic implements Schematic {
         for (Region.Block block : regionBlocks) {
             Pos pos = block.position();
             Block minestomBlock = Block.fromStateId(block.stateId());
-            if (minestomBlock != null)  {
+            if (minestomBlock != null) {
                 setter.setBlock(pos, minestomBlock);
             } else {
                 throw new IllegalStateException("Invalid block state id: " + block.stateId());

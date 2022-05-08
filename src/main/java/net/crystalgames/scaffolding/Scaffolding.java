@@ -14,9 +14,10 @@ public class Scaffolding {
 
     /**
      * Automatically detects the type of schematic and parses the input stream
+     *
      * @param inputStream Schematic input
      * @return parsed schematic
-     * @throws IOException if the input stream is invalid
+     * @throws IOException  if the input stream is invalid
      * @throws NBTException if the schematic is invalid
      */
     public static @Nullable Schematic fromStream(@NotNull InputStream inputStream) throws IOException, NBTException {
@@ -34,9 +35,10 @@ public class Scaffolding {
 
     /**
      * Automatically detects the type of schematic and parses the file
+     *
      * @param file Schematic file
      * @return parsed schematic
-     * @throws IOException if the file is invalid
+     * @throws IOException  if the file is invalid
      * @throws NBTException if the schematic is invalid
      */
     public static @Nullable Schematic fromFile(@NotNull File file) throws IOException, NBTException {
