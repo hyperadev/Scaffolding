@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
 
+@SuppressWarnings("unused")
 public interface Schematic {
 
     default void read(InputStream inputStream) throws IOException, NBTException {

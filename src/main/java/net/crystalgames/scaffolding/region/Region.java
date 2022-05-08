@@ -3,6 +3,7 @@ package net.crystalgames.scaffolding.region;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 
+@SuppressWarnings("unused")
 public record Region(Instance instance, Pos lower, Pos upper) {
 
     public int sizeX() {
