@@ -19,17 +19,19 @@ public class Scaffolding {
      * @return parsed schematic
      * @throws IOException  if the input stream is invalid
      * @throws NBTException if the schematic is invalid
+     * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
      */
-    public static @Nullable Schematic fromStream(@NotNull InputStream inputStream) throws IOException, NBTException {
+    public static @NotNull Schematic fromStream(@NotNull InputStream inputStream) throws IOException, NBTException, IllegalArgumentException {
         NBTReader reader = new NBTReader(inputStream, CompressedProcesser.GZIP);
         Pair<String, NBT> pair = reader.readNamed();
         NBTCompound nbtTag = (NBTCompound) pair.getSecond();
 
-        Schematic schematic = null;
+        Schematic schematic;
         if (nbtTag.contains("Blocks")) schematic = new MCEditSchematic();
         else if (nbtTag.contains("Palette")) schematic = new SpongeSchematic();
+        else throw new IllegalArgumentException("Unknown schematic type.");
 
-        if (schematic != null) schematic.read(nbtTag);
+        schematic.read(nbtTag);
         return schematic;
     }
 
@@ -40,8 +42,9 @@ public class Scaffolding {
      * @return parsed schematic
      * @throws IOException  if the file is invalid
      * @throws NBTException if the schematic is invalid
+     * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
      */
-    public static @Nullable Schematic fromFile(@NotNull File file) throws IOException, NBTException {
+    public static @NotNull Schematic fromFile(@NotNull File file) throws IOException, NBTException, IllegalArgumentException {
         if (!file.exists()) throw new FileNotFoundException("Invalid Schematic: File does not exist");
         return fromStream(new FileInputStream(file));
     }
