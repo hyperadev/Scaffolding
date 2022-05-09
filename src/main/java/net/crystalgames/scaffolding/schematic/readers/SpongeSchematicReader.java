@@ -13,10 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 // https://github.com/EngineHub/WorldEdit/blob/303f5a76b2df70d63480f2126c9ef4b228eb3c59/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/SpongeSchematicReader.java#L261-L297
-public class SpongeSchematicReader implements NBTSchematicReader {
-
-    private Map<String, Integer> palette = new HashMap<>();
-    private byte[] blocksData;
+public class SpongeSchematicReader extends NBTSchematicReader {
 
     @Override
     public CompletableFuture<Schematic> read(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) {
@@ -27,10 +24,8 @@ public class SpongeSchematicReader implements NBTSchematicReader {
                 readSizes(schematic, nbtTag);
                 readBlockPalette(schematic, nbtTag);
                 readOffsets(schematic, nbtTag);
-                readBlocks(schematic);
 
                 schematic.setLocked(false);
-
                 return schematic;
             } catch (Exception e) {
                 throw new CompletionException(e);
@@ -39,76 +34,54 @@ public class SpongeSchematicReader implements NBTSchematicReader {
     }
 
     private void readOffsets(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
-        NBTCompound metaData = nbtTag.getCompound("Metadata");
-        if (metaData == null) throw new NBTException("Invalid Schematic: No Metadata");
-
-        Integer weOffsetX = metaData.getInt("WEOffsetX");
-        if (weOffsetX == null) throw new NBTException("Invalid Schematic: No WEOffsetX In Metadata");
-
-        Integer weOffsetY = metaData.getInt("WEOffsetY");
-        if (weOffsetY == null) throw new NBTException("Invalid Schematic: No WEOffsetY In Metadata");
-
-        Integer weOffsetZ = metaData.getInt("WEOffsetZ");
-        if (weOffsetZ == null) throw new NBTException("Invalid Schematic: No WEOffsetZ In Metadata");
-
+        NBTCompound metadata = getCompound(nbtTag, "Metadata", "Invalid Schematic: No Metadata");
+        int weOffsetX = getInteger(metadata, "WEOffsetX", "Invalid Schematic: No WEOffsetX In Metadata");
+        int weOffsetY = getInteger(metadata, "WEOffsetY", "Invalid Schematic: No WEOffsetY In Metadata");
+        int weOffsetZ = getInteger(metadata, "WEOffsetZ", "Invalid Schematic: No WEOffsetZ In Metadata");
         schematic.setOffset(weOffsetX, weOffsetY, weOffsetZ);
     }
 
     private void readSizes(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
-        Short width = nbtTag.getShort("Width");
-        if (width == null) throw new NBTException("Invalid Schematic: No Width");
-
-        Short height = nbtTag.getShort("Height");
-        if (height == null) throw new NBTException("Invalid Schematic: No Height");
-
-        Short length = nbtTag.getShort("Length");
-        if (length == null) throw new NBTException("Invalid Schematic: No Length");
-
+        short width = getShort(nbtTag, "Width", "Invalid Schematic: No Width");
+        short height = getShort(nbtTag, "Height", "Invalid Schematic: No Height");
+        short length = getShort(nbtTag, "Length", "Invalid Schematic: No Length");
         schematic.setSize(width, height, length);
     }
 
     private void readBlockPalette(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
-        Integer maxPalette = nbtTag.getInt("PaletteMax");
-        if (maxPalette == null) throw new NBTException("Invalid Schematic: No PaletteMax");
-
-        NBTCompound nbtPalette = (NBTCompound) nbtTag.get("Palette");
-        if (nbtPalette == null) throw new NBTException("Invalid Schematic: No Palette");
+        int maxPalette= getInteger(nbtTag, "PaletteMax", "Invalid Schematic: No PaletteMax");
+        NBTCompound nbtPalette = getCompound(nbtTag, "Palette", "Invalid Schematic: No Palette");
 
         Set<String> keys = nbtPalette.getKeys();
         if (keys.size() != maxPalette)
             throw new NBTException("Invalid Schematic: PaletteMax does not match Palette size");
 
-        for (String key : keys) {
-            Integer value = nbtPalette.getInt(key);
-            if (value == null) throw new NBTException("Invalid Schematic: Palette contains invalid value");
+        final Map<String, Integer> unsortedPalette = new HashMap<>();
+        for (String key : keys) unsortedPalette.put(key, getInteger(nbtPalette, key, "Invalid Schematic: Palette contains invalid value"));
 
-            palette.put(key, value);
-        }
 
-        palette = palette.entrySet().stream()
+        final Map<String, Integer> palette = unsortedPalette.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
                 .collect(LinkedHashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue()), LinkedHashMap::putAll);
 
         ImmutableByteArray blocksData = nbtTag.getByteArray("BlockData");
         if (blocksData == null || blocksData.getSize() == 0) throw new NBTException("Invalid Schematic: No BlockData");
-        this.blocksData = blocksData.copyArray();
-    }
+        byte[] blocksDataArr = blocksData.copyArray();
 
-    private void readBlocks(@NotNull Schematic schematic) throws NBTException {
         int index = 0;
         int i = 0;
         int value;
         int varIntLength;
         List<String> paletteKeys = new ArrayList<>(palette.keySet());
 
-        while (i < this.blocksData.length) {
+        while (i < blocksDataArr.length) {
             value = 0;
             varIntLength = 0;
 
             while (true) {
-                value |= (this.blocksData[i] & 127) << (varIntLength++ * 7);
+                value |= (blocksDataArr[i] & 127) << (varIntLength++ * 7);
                 if (varIntLength > 5) throw new NBTException("Invalid Schematic: BlockData has invalid length");
-                if ((this.blocksData[i] & 128) != 128) {
+                if ((blocksDataArr[i] & 128) != 128) {
                     i++;
                     break;
                 }
