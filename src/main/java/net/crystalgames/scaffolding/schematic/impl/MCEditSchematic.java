@@ -11,8 +11,12 @@ import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -20,12 +24,30 @@ import java.util.concurrent.CompletableFuture;
 // https://github.com/EngineHub/WorldEdit/blob/version/5.x/src/main/java/com/sk89q/worldedit/schematic/MCEditSchematicFormat.java
 public class MCEditSchematic implements Schematic {
 
+    private static final HashMap<String, Short> STATE_ID_LOOKUP = new HashMap<>();
+
+    static {
+        try {
+            // Load state IDS from lookup table
+            InputStream is = MCEditSchematic.class.getClassLoader().getResourceAsStream("MCEditBlockStateLookup.txt");
+            BufferedInputStream bis = new BufferedInputStream(Objects.requireNonNull(is));
+            String raw = new String(bis.readAllBytes());
+            for (String line : raw.split("\n")) {
+                String[] split = line.split("=");
+                STATE_ID_LOOKUP.put(split[0], Short.parseShort(split[1]));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private final List<Region.Block> regionBlocks = new ArrayList<>();
 
     private short width;
     private short height;
     private short length;
     private short[] blocks;
+    private byte[] blockData;
 
     private boolean read = false;
 
@@ -85,21 +107,26 @@ public class MCEditSchematic implements Schematic {
 
         ImmutableByteArray blocksData = nbtTag.getByteArray("Data");
         if (blocksData == null) throw new NBTException("Invalid Schematic: No Block Data");
-        blocksData.copyArray();
+        this.blockData = blocksData.copyArray();
 
-        byte[] addId;
-        if (nbtTag.containsKey("AddBlocks"))
-            addId = Objects.requireNonNull(nbtTag.getByteArray("AddBlocks")).copyArray();
-        else addId = new byte[0];
+        // Each "add block" contains the upper 4 bits for 2 blocks packed in one byte
+        // addBlocks.length / 2 = number of blocks
+        byte[] addBlocks = nbtTag.containsKey("AddBlocks") ? Objects.requireNonNull(nbtTag.getByteArray("AddBlocks")).copyArray() : new byte[0];
 
         blocks = new short[blockId.length];
         for (int index = 0; index < blockId.length; index++) {
-            if ((index >> 1) >= addId.length) this.blocks[index] = (short) (blockId[index] & 0xFF);
-            else {
-                if ((index & 1) == 0)
-                    this.blocks[index] = (short) (((addId[index >> 1] & 0x0F) << 8) + (blockId[index] & 0xFF));
-                else this.blocks[index] = (short) (((addId[index >> 1] & 0xF0) << 4) + (blockId[index] & 0xFF));
+            final int halfIndex = index >> 1; // same as 'index / 2'
+            short addAmount = 0;
+
+            if (halfIndex < addBlocks.length) {
+                final short rawAdd = (short) (addBlocks[halfIndex] & 0b11111111);
+                // If index is even, we want to shift 8 bits (a full byte) to the left, otherwise 4 since a single byte holds 2 blocks.
+                // The MCEdit format is weird and uses the upper 4 bits for even blocks and the lower 4 bits for odd blocks
+                final int leftShiftAmount = (index % 2 == 0) ? 8 : 4;
+                addAmount = (short) (rawAdd << leftShiftAmount);
             }
+
+            this.blocks[index] = (short) (addAmount + (blockId[index] & 0b11111111));
         }
     }
 
@@ -108,7 +135,11 @@ public class MCEditSchematic implements Schematic {
             for (int y = 0; y < height; ++y) {
                 for (int z = 0; z < length; ++z) {
                     int index = y * width * length + z * width + x;
-                    short stateId = this.blocks[index];
+                    String legacyId = this.blocks[index] + ":" + this.blockData[index];
+
+                    // Let's just ignore unknown blocks for now
+                    // TODO: log when unknown blocks are encountered?
+                    short stateId = STATE_ID_LOOKUP.get(legacyId);
                     regionBlocks.add(new Region.Block(new Pos(x + offsetX, y + offsetY, z + offsetZ), stateId));
                 }
             }
