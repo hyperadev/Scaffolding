@@ -1,10 +1,6 @@
 package net.crystalgames.scaffolding.schematic.impl;
 
-import net.crystalgames.scaffolding.region.Region;
 import net.crystalgames.scaffolding.schematic.Schematic;
-import net.minestom.server.coordinate.Pos;
-import net.minestom.server.instance.Instance;
-import net.minestom.server.instance.batch.AbsoluteBlockBatch;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
@@ -16,29 +12,19 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 // https://github.com/EngineHub/WorldEdit/blob/303f5a76b2df70d63480f2126c9ef4b228eb3c59/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/SpongeSchematicReader.java#L261-L297
-public class SpongeSchematic implements Schematic {
+public class SpongeSchematic extends Schematic {
 
-    private final List<Region.Block> regionBlocks = new ArrayList<>();
-
-    private short width;
-    private short height;
-    private short length;
     private Map<String, Integer> palette = new HashMap<>();
     private byte[] blocksData;
 
-    private boolean read = false;
-
-    private int offsetX;
-    private int offsetY;
-    private int offsetZ;
-
     @Override
-    public void read(NBTCompound nbtTag) throws NBTException {
+    public void read(@NotNull NBTCompound nbtTag) throws NBTException {
         readSizes(nbtTag);
         readBlockPalette(nbtTag);
         readOffsets(nbtTag);
         readBlocks();
-        read = true;
+
+        setLocked(false);
     }
 
     private void readOffsets(@NotNull NBTCompound nbtTag) throws NBTException {
@@ -47,29 +33,27 @@ public class SpongeSchematic implements Schematic {
 
         Integer weOffsetX = metaData.getInt("WEOffsetX");
         if (weOffsetX == null) throw new NBTException("Invalid Schematic: No WEOffsetX In Metadata");
-        this.offsetX = weOffsetX;
 
         Integer weOffsetY = metaData.getInt("WEOffsetY");
         if (weOffsetY == null) throw new NBTException("Invalid Schematic: No WEOffsetY In Metadata");
-        this.offsetY = weOffsetY;
 
         Integer weOffsetZ = metaData.getInt("WEOffsetZ");
         if (weOffsetZ == null) throw new NBTException("Invalid Schematic: No WEOffsetZ In Metadata");
-        this.offsetZ = weOffsetZ;
+
+        setOffset(weOffsetX, weOffsetY, weOffsetZ);
     }
 
     private void readSizes(@NotNull NBTCompound nbtTag) throws NBTException {
         Short width = nbtTag.getShort("Width");
         if (width == null) throw new NBTException("Invalid Schematic: No Width");
-        this.width = width;
 
         Short height = nbtTag.getShort("Height");
         if (height == null) throw new NBTException("Invalid Schematic: No Height");
-        this.height = height;
 
         Short length = nbtTag.getShort("Length");
         if (length == null) throw new NBTException("Invalid Schematic: No Length");
-        this.length = length;
+
+        setSize(width, height, length);
     }
 
     private void readBlockPalette(@NotNull NBTCompound nbtTag) throws NBTException {
@@ -120,45 +104,23 @@ public class SpongeSchematic implements Schematic {
                 i++;
             }
 
-            int x = (index % (width * length)) % width;
-            int y = index / (width * length);
-            int z = (index % (width * length)) / width;
+            int x = (index % (getWidth() * getLength())) % getWidth();
+            int y = index / (getWidth() * getLength());
+            int z = (index % (getWidth() * getLength())) / getWidth();
 
             String block = paletteKeys.get(value);
             short stateId = getStateId(block);
 
-            this.regionBlocks.add(new Region.Block(new Pos(x + offsetX, y + offsetY, z + offsetZ), stateId));
+            setBlock(x, y, z, stateId);
 
             index++;
         }
     }
 
     @Override
-    public void write(OutputStream outputStream, Region region) {
+    public @NotNull CompletableFuture<Void> write(@NotNull OutputStream outputStream) {
         // TODO: Complete
-    }
-
-    @Override
-    public CompletableFuture<Region> build(Instance instance, Pos position) {
-        if (!read) throw new IllegalStateException("Schematic not read");
-        CompletableFuture<Region> future = new CompletableFuture<>();
-        CompletableFuture.runAsync(() -> {
-            AbsoluteBlockBatch blockBatch = new AbsoluteBlockBatch();
-
-            List<CompletableFuture<Void>> futures = new ArrayList<>();
-            for (Region.Block regionBlock : regionBlocks) {
-                Pos absoluteBlockPosition = regionBlock.position().add(position);
-                short stateId = regionBlock.stateId();
-
-                Block block = Block.fromStateId(stateId);
-                if (block != null)
-                    futures.add(instance.loadOptionalChunk(absoluteBlockPosition).thenRun(() -> blockBatch.setBlock(absoluteBlockPosition, block)));
-            }
-
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[]{})).join();
-            blockBatch.apply(instance, () -> future.complete(new Region(instance, position, position.add(width, height, length))));
-        });
-        return future;
+        return null;
     }
 
     private Block getBlock(@NotNull String input) {
@@ -187,48 +149,4 @@ public class SpongeSchematic implements Schematic {
             }
         } else return block.stateId();
     }
-
-    @Override
-    public short getWidth() {
-        return width;
-    }
-
-    @Override
-    public short getHeight() {
-        return height;
-    }
-
-    @Override
-    public short getLength() {
-        return length;
-    }
-
-    @Override
-    public int getOffsetX() {
-        return offsetX;
-    }
-
-    @Override
-    public int getOffsetY() {
-        return offsetY;
-    }
-
-    @Override
-    public int getOffsetZ() {
-        return offsetZ;
-    }
-
-    @Override
-    public void apply(Block.@NotNull Setter setter) {
-        for (Region.Block block : regionBlocks) {
-            Pos pos = block.position();
-            Block minestomBlock = Block.fromStateId(block.stateId());
-            if (minestomBlock != null) {
-                setter.setBlock(pos, minestomBlock);
-            } else {
-                throw new IllegalStateException("Invalid block state id: " + block.stateId());
-            }
-        }
-    }
-
 }

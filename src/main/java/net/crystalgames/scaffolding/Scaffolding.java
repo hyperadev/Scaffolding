@@ -5,7 +5,6 @@ import net.crystalgames.scaffolding.schematic.Schematic;
 import net.crystalgames.scaffolding.schematic.impl.MCEditSchematic;
 import net.crystalgames.scaffolding.schematic.impl.SpongeSchematic;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.*;
 
 import java.io.*;
@@ -17,8 +16,8 @@ public class Scaffolding {
      *
      * @param inputStream Schematic input
      * @return parsed schematic
-     * @throws IOException  if the input stream is invalid
-     * @throws NBTException if the schematic is invalid
+     * @throws IOException              if the input stream is invalid
+     * @throws NBTException             if the schematic is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
      */
     public static @NotNull Schematic fromStream(@NotNull InputStream inputStream) throws IOException, NBTException, IllegalArgumentException {
@@ -40,8 +39,8 @@ public class Scaffolding {
      *
      * @param file Schematic file
      * @return parsed schematic
-     * @throws IOException  if the file is invalid
-     * @throws NBTException if the schematic is invalid
+     * @throws IOException              if the file is invalid
+     * @throws NBTException             if the schematic is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
      */
     public static @NotNull Schematic fromFile(@NotNull File file) throws IOException, NBTException, IllegalArgumentException {
