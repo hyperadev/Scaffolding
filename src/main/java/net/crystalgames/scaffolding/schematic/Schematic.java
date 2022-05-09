@@ -57,7 +57,7 @@ public class Schematic implements Block.Setter {
     }
 
     public @NotNull CompletableFuture<Region> build(@NotNull Instance instance, @NotNull Pos position, boolean flipX, boolean flipY, boolean flipZ) {
-        if (locked) throw new IllegalStateException("Cannot build a locked blueprint.");
+        if (locked) throw new IllegalStateException("Cannot build a locked schematic.");
 
         final Pos lower = position.add(offsetX, offsetY, offsetZ);
         final Pos upper = lower.add(width, height, length);
@@ -106,12 +106,10 @@ public class Schematic implements Block.Setter {
     }
 
     public void fork(@NotNull GenerationUnit unit, @NotNull Pos position, boolean flipX, boolean flipY, boolean flipZ) {
-        if (locked) throw new IllegalStateException("Cannot fork a locked blueprint.");
+        if (locked) throw new IllegalStateException("Cannot fork a locked schematic.");
 
         final Pos start = position.sub(offsetX, offsetY, offsetZ);
         final Pos end = start.add(width, height, length);
-
-        System.out.println(end.sub(start));
 
         UnitModifier forkModifier = unit.fork(start, end).modifier();
 
