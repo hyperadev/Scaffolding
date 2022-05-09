@@ -2,22 +2,24 @@ package net.crystalgames.scaffolding.region;
 
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
 @SuppressWarnings("unused")
 public final class Region {
+
     private final Instance instance;
     private final Pos lower;
     private final Pos upper;
 
-    public Region(Instance instance, Pos p1, Pos p2) {
+    public Region(@NotNull Instance instance, @NotNull Pos p1, @NotNull Pos p2) {
         this.instance = instance;
         this.lower = min(p1, p2);
         this.upper = max(p1, p2);
     }
 
-    private Pos min(Pos p1, Pos p2) {
+    private @NotNull Pos min(@NotNull Pos p1, @NotNull Pos p2) {
         final int x = Math.min(p1.blockX(), p2.blockX());
         final int y = Math.min(p1.blockY(), p2.blockY());
         final int z = Math.min(p1.blockZ(), p2.blockZ());
@@ -49,15 +51,15 @@ public final class Region {
         return lower.blockZ() >> 4;
     }
 
-    public int sizeX() {
+    public int width() {
         return (upper.blockX() - lower.blockX()) + 1;
     }
 
-    public int sizeY() {
+    public int height() {
         return (upper.blockY() - lower.blockY()) + 1;
     }
 
-    public int sizeZ() {
+    public int length() {
         return (upper.blockZ() - lower.blockZ()) + 1;
     }
 

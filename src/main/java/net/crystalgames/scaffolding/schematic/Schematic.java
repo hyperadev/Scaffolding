@@ -37,9 +37,9 @@ public class Schematic implements Block.Setter {
 
             loadChunksFuture.join();
 
-            for (int x = 0; x < region.sizeX(); ++x) {
-                for (int y = 0; y < region.sizeY(); ++y) {
-                    for (int z = 0; z < region.sizeZ(); ++z) {
+            for (int x = 0; x < region.width(); ++x) {
+                for (int y = 0; y < region.height(); ++y) {
+                    for (int z = 0; z < region.length(); ++z) {
                         final int blockX = region.lower().blockX() + x;
                         final int blockY = region.lower().blockY() + y;
                         final int blockZ = region.lower().blockZ() + z;
