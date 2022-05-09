@@ -16,7 +16,7 @@ import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings("unused")
-public abstract class Schematic {
+public abstract class Schematic implements Block.Setter{
 
     private short[] blocks;
 
