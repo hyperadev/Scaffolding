@@ -19,7 +19,6 @@ public class Schematic implements Block.Setter {
 
     private int width, height, length;
     private int offsetX, offsetY, offsetZ;
-
     private int area;
 
     private boolean locked;
@@ -28,27 +27,11 @@ public class Schematic implements Block.Setter {
         reset();
     }
 
-    private @NotNull CompletableFuture<Void> loadChunks(@NotNull Instance instance, @NotNull Region region) {
-        final int lengthX = region.upperChunkX() - region.lowerChunkX() + 1;
-        final int lengthZ = region.upperChunkZ() - region.lowerChunkZ() + 1;
-
-        final CompletableFuture<?>[] futures = new CompletableFuture[lengthX * lengthZ];
-        int index = 0;
-
-        for (int x = region.lowerChunkX(); x <= region.upperChunkX(); ++x) {
-            for (int z = region.lowerChunkZ(); z <= region.upperChunkZ(); ++z) {
-                futures[index++] = instance.loadChunk(x, z);
-            }
-        }
-
-        return CompletableFuture.allOf(futures);
-    }
-
     public @NotNull CompletableFuture<Void> copy(@NotNull Instance instance, Region region) {
         reset();
 
         return CompletableFuture.runAsync(() -> {
-            CompletableFuture<Void> loadChunksFuture = loadChunks(instance, region);
+            CompletableFuture<Void> loadChunksFuture = ScaffoldingUtils.loadChunks(instance, region);
 
             setSize(width, height, length);
 
@@ -81,7 +64,7 @@ public class Schematic implements Block.Setter {
 
         Region region = new Region(instance, lower, upper);
 
-        final CompletableFuture<Void> loadChunks = loadChunks(instance, region);
+        final CompletableFuture<Void> loadChunks = ScaffoldingUtils.loadChunks(instance, region);
         final AbsoluteBlockBatch blockBatch = new AbsoluteBlockBatch();
 
         apply(lower, flipX, flipY, flipZ, blockBatch);

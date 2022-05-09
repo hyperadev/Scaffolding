@@ -41,7 +41,7 @@ public abstract class NBTSchematicReader {
 
     protected byte[] getByteArray(@NotNull NBTCompound compound, @NotNull String key, String exceptionMessage) throws NBTException {
         ImmutableByteArray value = compound.getByteArray(key);
-        if(value == null) throw new NBTException(exceptionMessage);
+        if (value == null) throw new NBTException(exceptionMessage);
 
         return value.copyArray();
     }

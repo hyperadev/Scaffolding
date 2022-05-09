@@ -49,7 +49,7 @@ public class SpongeSchematicReader extends NBTSchematicReader {
     }
 
     private void readBlockPalette(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
-        int maxPalette= getInteger(nbtTag, "PaletteMax", "Invalid Schematic: No PaletteMax");
+        int maxPalette = getInteger(nbtTag, "PaletteMax", "Invalid Schematic: No PaletteMax");
         NBTCompound nbtPalette = getCompound(nbtTag, "Palette", "Invalid Schematic: No Palette");
 
         Set<String> keys = nbtPalette.getKeys();
@@ -57,7 +57,8 @@ public class SpongeSchematicReader extends NBTSchematicReader {
             throw new NBTException("Invalid Schematic: PaletteMax does not match Palette size");
 
         final Map<String, Integer> unsortedPalette = new HashMap<>();
-        for (String key : keys) unsortedPalette.put(key, getInteger(nbtPalette, key, "Invalid Schematic: Palette contains invalid value"));
+        for (String key : keys)
+            unsortedPalette.put(key, getInteger(nbtPalette, key, "Invalid Schematic: Palette contains invalid value"));
 
 
         final Map<String, Integer> palette = unsortedPalette.entrySet().stream()

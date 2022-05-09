@@ -1,38 +1,18 @@
 package net.crystalgames.scaffolding.schematic.readers;
 
 import net.crystalgames.scaffolding.schematic.NBTSchematicReader;
+import net.crystalgames.scaffolding.schematic.ScaffoldingUtils;
 import net.crystalgames.scaffolding.schematic.Schematic;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 // https://github.com/EngineHub/WorldEdit/blob/master/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/MCEditSchematicReader.java
 public class MCEditSchematicReader extends NBTSchematicReader {
-
-    private static final HashMap<String, Short> STATE_ID_LOOKUP = new HashMap<>();
-
-    static {
-        try {
-            // Load state IDS from lookup table
-            InputStream is = MCEditSchematicReader.class.getClassLoader().getResourceAsStream("MCEditBlockStateLookup.txt");
-            BufferedInputStream bis = new BufferedInputStream(Objects.requireNonNull(is));
-            String raw = new String(bis.readAllBytes());
-            for (String line : raw.split("\n")) {
-                String[] split = line.split("=");
-                STATE_ID_LOOKUP.put(split[0], Short.parseShort(split[1]));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public CompletableFuture<Schematic> read(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) {
@@ -74,7 +54,7 @@ public class MCEditSchematicReader extends NBTSchematicReader {
 
     private void readBlocksData(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
         String materials = getString(nbtTag, "Materials", "Invalid Schematic: No Materials");
-        if(!materials.equals("Alpha")) throw new NBTException("Invalid Schematic: Invalid Materials");
+        if (!materials.equals("Alpha")) throw new NBTException("Invalid Schematic: Invalid Materials");
 
         byte[] blocks = getByteArray(nbtTag, "Blocks", "Invalid Schematic: No Blocks");
         byte[] blockData = getByteArray(nbtTag, "Data", "Invalid Schematic: No Block Data");
@@ -104,11 +84,9 @@ public class MCEditSchematicReader extends NBTSchematicReader {
             for (int y = 0; y < schematic.getHeight(); ++y) {
                 for (int z = 0; z < schematic.getLength(); ++z) {
                     int index = schematic.getIndex(x, y, z);
-                    String legacyId = outdatedBlockIds[index] + ":" + blockData[index];
-
                     // Let's just ignore unknown blocks for now
                     // TODO: log when unknown blocks are encountered?
-                    short stateId = STATE_ID_LOOKUP.get(legacyId);
+                    short stateId = ScaffoldingUtils.stateIdFromLegacy(outdatedBlockIds[index], blockData[index]);
 
                     schematic.setBlock(x, y, z, stateId);
                 }
