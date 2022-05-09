@@ -1,5 +1,6 @@
-package net.crystalgames.scaffolding.schematic.impl;
+package net.crystalgames.scaffolding.schematic.readers;
 
+import net.crystalgames.scaffolding.schematic.NBTSchematicReader;
 import net.crystalgames.scaffolding.schematic.Schematic;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
@@ -7,27 +8,37 @@ import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 
-import java.io.OutputStream;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 // https://github.com/EngineHub/WorldEdit/blob/303f5a76b2df70d63480f2126c9ef4b228eb3c59/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/SpongeSchematicReader.java#L261-L297
-public class SpongeSchematic extends Schematic {
+public class SpongeSchematicReader implements NBTSchematicReader {
 
     private Map<String, Integer> palette = new HashMap<>();
     private byte[] blocksData;
 
     @Override
-    public void read(@NotNull NBTCompound nbtTag) throws NBTException {
-        readSizes(nbtTag);
-        readBlockPalette(nbtTag);
-        readOffsets(nbtTag);
-        readBlocks();
+    public CompletableFuture<Schematic> read(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) {
+        schematic.reset();
 
-        setLocked(false);
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                readSizes(schematic, nbtTag);
+                readBlockPalette(schematic, nbtTag);
+                readOffsets(schematic, nbtTag);
+                readBlocks(schematic);
+
+                schematic.setLocked(false);
+
+                return schematic;
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        });
     }
 
-    private void readOffsets(@NotNull NBTCompound nbtTag) throws NBTException {
+    private void readOffsets(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
         NBTCompound metaData = nbtTag.getCompound("Metadata");
         if (metaData == null) throw new NBTException("Invalid Schematic: No Metadata");
 
@@ -40,10 +51,10 @@ public class SpongeSchematic extends Schematic {
         Integer weOffsetZ = metaData.getInt("WEOffsetZ");
         if (weOffsetZ == null) throw new NBTException("Invalid Schematic: No WEOffsetZ In Metadata");
 
-        setOffset(weOffsetX, weOffsetY, weOffsetZ);
+        schematic.setOffset(weOffsetX, weOffsetY, weOffsetZ);
     }
 
-    private void readSizes(@NotNull NBTCompound nbtTag) throws NBTException {
+    private void readSizes(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
         Short width = nbtTag.getShort("Width");
         if (width == null) throw new NBTException("Invalid Schematic: No Width");
 
@@ -53,10 +64,10 @@ public class SpongeSchematic extends Schematic {
         Short length = nbtTag.getShort("Length");
         if (length == null) throw new NBTException("Invalid Schematic: No Length");
 
-        setSize(width, height, length);
+        schematic.setSize(width, height, length);
     }
 
-    private void readBlockPalette(@NotNull NBTCompound nbtTag) throws NBTException {
+    private void readBlockPalette(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
         Integer maxPalette = nbtTag.getInt("PaletteMax");
         if (maxPalette == null) throw new NBTException("Invalid Schematic: No PaletteMax");
 
@@ -83,7 +94,7 @@ public class SpongeSchematic extends Schematic {
         this.blocksData = blocksData.copyArray();
     }
 
-    private void readBlocks() throws NBTException {
+    private void readBlocks(@NotNull Schematic schematic) throws NBTException {
         int index = 0;
         int i = 0;
         int value;
@@ -104,23 +115,17 @@ public class SpongeSchematic extends Schematic {
                 i++;
             }
 
-            int x = (index % (getWidth() * getLength())) % getWidth();
-            int y = index / (getWidth() * getLength());
-            int z = (index % (getWidth() * getLength())) / getWidth();
+            int x = (index % (schematic.getWidth() * schematic.getLength())) % schematic.getWidth();
+            int y = index / (schematic.getWidth() * schematic.getLength());
+            int z = (index % (schematic.getWidth() * schematic.getLength())) / schematic.getWidth();
 
             String block = paletteKeys.get(value);
             short stateId = getStateId(block);
 
-            setBlock(x, y, z, stateId);
+            schematic.setBlock(x, y, z, stateId);
 
             index++;
         }
-    }
-
-    @Override
-    public @NotNull CompletableFuture<Void> write(@NotNull OutputStream outputStream) {
-        // TODO: Complete
-        return null;
     }
 
     private Block getBlock(@NotNull String input) {

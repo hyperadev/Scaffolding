@@ -9,14 +9,11 @@ import net.minestom.server.instance.generator.GenerationUnit;
 import net.minestom.server.instance.generator.UnitModifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jglrxavpok.hephaistos.nbt.NBTCompound;
-import org.jglrxavpok.hephaistos.nbt.NBTException;
 
-import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings("unused")
-public abstract class Schematic implements Block.Setter{
+public class Schematic implements Block.Setter {
 
     private short[] blocks;
 
@@ -75,10 +72,6 @@ public abstract class Schematic implements Block.Setter{
             locked = false;
         });
     }
-
-    public abstract void read(@NotNull NBTCompound nbtTag) throws NBTException;
-
-    public abstract @NotNull CompletableFuture<Void> write(@NotNull OutputStream outputStream);
 
     public @NotNull CompletableFuture<Region> build(@NotNull Instance instance, @NotNull Pos position, boolean flipX, boolean flipY, boolean flipZ) {
         if (locked) throw new IllegalStateException("Cannot build a locked blueprint.");
@@ -142,7 +135,7 @@ public abstract class Schematic implements Block.Setter{
         apply(start, flipX, flipY, flipZ, forkModifier);
     }
 
-    private void reset() {
+    public void reset() {
         width = height = length = 0;
         offsetX = offsetY = offsetZ = 0;
 
@@ -160,11 +153,11 @@ public abstract class Schematic implements Block.Setter{
         return Block.fromStateId(stateId);
     }
 
-    protected int getIndex(int x, int y, int z) {
+    public int getIndex(int x, int y, int z) {
         return y * width * length + z * width + x;
     }
 
-    protected void setSize(int sizeX, int sizeY, int sizeZ) {
+    public void setSize(int sizeX, int sizeY, int sizeZ) {
         this.width = sizeX;
         this.height = sizeY;
         this.length = sizeZ;
@@ -221,7 +214,7 @@ public abstract class Schematic implements Block.Setter{
         return locked;
     }
 
-    protected void setLocked(boolean locked) {
+    public void setLocked(boolean locked) {
         this.locked = locked;
     }
 

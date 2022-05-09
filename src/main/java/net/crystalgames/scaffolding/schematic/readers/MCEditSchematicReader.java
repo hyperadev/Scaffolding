@@ -1,5 +1,6 @@
-package net.crystalgames.scaffolding.schematic.impl;
+package net.crystalgames.scaffolding.schematic.readers;
 
+import net.crystalgames.scaffolding.schematic.NBTSchematicReader;
 import net.crystalgames.scaffolding.schematic.Schematic;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
@@ -9,20 +10,20 @@ import org.jglrxavpok.hephaistos.nbt.NBTException;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
-// https://github.com/EngineHub/WorldEdit/blob/version/5.x/src/main/java/com/sk89q/worldedit/schematic/MCEditSchematicFormat.java
-public class MCEditSchematic extends Schematic {
+// https://github.com/EngineHub/WorldEdit/blob/master/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/MCEditSchematicReader.java
+public class MCEditSchematicReader implements NBTSchematicReader {
 
     private static final HashMap<String, Short> STATE_ID_LOOKUP = new HashMap<>();
 
     static {
         try {
             // Load state IDS from lookup table
-            InputStream is = MCEditSchematic.class.getClassLoader().getResourceAsStream("MCEditBlockStateLookup.txt");
+            InputStream is = MCEditSchematicReader.class.getClassLoader().getResourceAsStream("MCEditBlockStateLookup.txt");
             BufferedInputStream bis = new BufferedInputStream(Objects.requireNonNull(is));
             String raw = new String(bis.readAllBytes());
             for (String line : raw.split("\n")) {
@@ -35,17 +36,27 @@ public class MCEditSchematic extends Schematic {
     }
 
     @Override
-    public void read(@NotNull NBTCompound nbtTag) throws NBTException {
-        if (!nbtTag.containsKey("Blocks")) throw new NBTException("Invalid Schematic: No Blocks");
+    public CompletableFuture<Schematic> read(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) {
+        schematic.reset();
 
-        readSizes(nbtTag);
-        readBlocksData(nbtTag);
-        readOffsets(nbtTag);
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                if (!nbtTag.containsKey("Blocks")) throw new NBTException("Invalid Schematic: No Blocks");
 
-        setLocked(false);
+                readSizes(schematic, nbtTag);
+                readBlocksData(schematic, nbtTag);
+                readOffsets(schematic, nbtTag);
+
+                schematic.setLocked(false);
+
+                return schematic;
+            } catch (Exception e) {
+                throw new CompletionException(e);
+            }
+        });
     }
 
-    private void readOffsets(@NotNull NBTCompound nbtTag) throws NBTException {
+    private void readOffsets(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
         Integer weOffsetX = nbtTag.getInt("WEOffsetX");
         if (weOffsetX == null) throw new NBTException("Invalid Schematic: No WEOffsetX");
 
@@ -55,10 +66,10 @@ public class MCEditSchematic extends Schematic {
         Integer weOffsetZ = nbtTag.getInt("WEOffsetZ");
         if (weOffsetZ == null) throw new NBTException("Invalid Schematic: No WEOffsetZ");
 
-        setOffset(weOffsetX, weOffsetY, weOffsetZ);
+        schematic.setOffset(weOffsetX, weOffsetY, weOffsetZ);
     }
 
-    private void readSizes(@NotNull NBTCompound nbtTag) throws NBTException {
+    private void readSizes(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
         Short width = nbtTag.getShort("Width");
         if (width == null) throw new NBTException("Invalid Schematic: No Width");
 
@@ -68,11 +79,11 @@ public class MCEditSchematic extends Schematic {
         Short length = nbtTag.getShort("Length");
         if (length == null) throw new NBTException("Invalid Schematic: No Length");
 
-        setSize(width, height, length);
+        schematic.setSize(width, height, length);
     }
 
 
-    private void readBlocksData(@NotNull NBTCompound nbtTag) throws NBTException {
+    private void readBlocksData(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
         String materials = nbtTag.getString("Materials");
         if (materials == null || !materials.equals("Alpha"))
             throw new NBTException("Invalid Schematic: Invalid Materials");
@@ -89,7 +100,7 @@ public class MCEditSchematic extends Schematic {
         // addBlocks.length / 2 = number of blocks
         byte[] addBlocks = nbtTag.containsKey("AddBlocks") ? Objects.requireNonNull(nbtTag.getByteArray("AddBlocks")).copyArray() : new byte[0];
 
-        short[] outdatedBlockIds = new short[getArea()];
+        short[] outdatedBlockIds = new short[schematic.getArea()];
 
         for (int index = 0; index < blockId.length; index++) {
             final int halfIndex = index >> 1; // same as 'index / 2'
@@ -106,25 +117,19 @@ public class MCEditSchematic extends Schematic {
             outdatedBlockIds[index] = (short) (addAmount + (blockId[index] & 0b11111111));
         }
 
-        for (int x = 0; x < getWidth(); ++x) {
-            for (int y = 0; y < getHeight(); ++y) {
-                for (int z = 0; z < getLength(); ++z) {
-                    int index = getIndex(x, y, z);
+        for (int x = 0; x < schematic.getWidth(); ++x) {
+            for (int y = 0; y < schematic.getHeight(); ++y) {
+                for (int z = 0; z < schematic.getLength(); ++z) {
+                    int index = schematic.getIndex(x, y, z);
                     String legacyId = outdatedBlockIds[index] + ":" + blockData[index];
 
                     // Let's just ignore unknown blocks for now
                     // TODO: log when unknown blocks are encountered?
                     short stateId = STATE_ID_LOOKUP.get(legacyId);
 
-                    setBlock(x, y, z, stateId);
+                    schematic.setBlock(x, y, z, stateId);
                 }
             }
         }
-    }
-
-    @Override
-    public @NotNull CompletableFuture<Void> write(@NotNull OutputStream outputStream) {
-        // TODO: Complete
-        return null;
     }
 }
