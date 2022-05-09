@@ -33,6 +33,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <dependency>
+            <groupId>me.alexpanov</groupId>
+            <artifactId>free-port-finder</artifactId>
+            <version>1.1.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <distributionManagement>
