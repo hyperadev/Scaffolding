@@ -59,17 +59,17 @@ public class Schematic implements Block.Setter {
     public @NotNull CompletableFuture<Region> build(@NotNull Instance instance, @NotNull Pos position, boolean flipX, boolean flipY, boolean flipZ) {
         if (locked) throw new IllegalStateException("Cannot build a locked schematic.");
 
-        final Pos lower = position.add(offsetX, offsetY, offsetZ);
-        final Pos upper = lower.add(width, height, length);
+        final Region region = getContainingRegion(instance, position);
 
-        Region region = new Region(instance, lower, upper);
+        // TODO: make this error message better
+        if(!isPlaceable(instance, region)) throw new IllegalStateException("Cannot build schematic at this position since blocks would go outside of world boundaries. " + position);
 
         final CompletableFuture<Void> loadChunks = ScaffoldingUtils.loadChunks(instance, region);
         final AbsoluteBlockBatch blockBatch = new AbsoluteBlockBatch();
 
-        apply(lower, flipX, flipY, flipZ, blockBatch);
+        apply(region.lower(), flipX, flipY, flipZ, blockBatch);
 
-        CompletableFuture<Region> future = new CompletableFuture<>();
+        final CompletableFuture<Region> future = new CompletableFuture<>();
         loadChunks.thenRun(() -> {
             try {
                 blockBatch.apply(instance, () -> future.complete(region));
@@ -217,5 +217,17 @@ public class Schematic implements Block.Setter {
     @Deprecated
     public void apply(@NotNull Block.Setter setter) {
         apply(Pos.ZERO, false, false, false, setter);
+    }
+
+    private boolean isPlaceable(@NotNull Instance instance, @NotNull Region region) {
+        return region.upper().blockY() <= instance.getDimensionType().getMaxY() && region.lower().blockY() >= instance.getDimensionType().getMinY();
+    }
+
+    public boolean isPlaceable(@NotNull Instance instance, @NotNull Pos position) {
+        return isPlaceable(instance, getContainingRegion(instance, position));
+    }
+
+    public Region getContainingRegion(@NotNull Instance instance, @NotNull Pos position) {
+        return new Region(instance, position.add(offsetX, offsetY, offsetZ), position.add(offsetX + width, offsetY + height, offsetZ + length));
     }
 }
