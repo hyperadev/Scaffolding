@@ -72,7 +72,6 @@ public class MCEditSchematicReader extends NBTSchematicReader {
             if (halfIndex < addBlocks.length) {
                 final short rawAdd = (short) (addBlocks[halfIndex] & 0b11111111);
                 // If index is even, we want to shift 8 bits (a full byte) to the left, otherwise 4 since a single byte holds 2 blocks.
-                // The MCEdit format is weird and uses the upper 4 bits for even blocks and the lower 4 bits for odd blocks
                 final int leftShiftAmount = (index % 2 == 0) ? 8 : 4;
                 addAmount = (short) (rawAdd << leftShiftAmount);
             }
