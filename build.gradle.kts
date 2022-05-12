@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     testImplementation("me.alexpanov:free-port-finder:1.1.1")
-    compileOnly("com.github.Minestom:Minestom:64de8f87c0")
+    compileOnly("com.github.Minestom:Minestom:f774cc3b0f")
 }
 
 group = "net.crystalgames"
