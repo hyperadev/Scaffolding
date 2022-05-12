@@ -74,9 +74,9 @@ public final class ScaffoldingUtils {
      * Force loads all {@link Chunk}s in the given {@link Region}.
      *
      * @param region the {@link Region} in which to load chunks
-     * @return a {@link CompletableFuture<Void>} that will complete once all chunks in the region have been loaded
+     * @return a {@link CompletableFuture<Region>} that will complete once all chunks in the region have been loaded. The future will give the region as the result so that you can chain it.
      */
-    public static @NotNull CompletableFuture<Void> loadChunks(@NotNull final Region region) {
+    public static @NotNull CompletableFuture<Region> loadChunks(@NotNull final Region region) {
         final Instance instance = region.getInstance();
 
         final int lengthX = region.getUpperChunkX() - region.getLowerChunkX() + 1;
@@ -91,6 +91,6 @@ public final class ScaffoldingUtils {
             }
         }
 
-        return CompletableFuture.allOf(futures);
+        return CompletableFuture.allOf(futures).thenApply(v -> region);
     }
 }

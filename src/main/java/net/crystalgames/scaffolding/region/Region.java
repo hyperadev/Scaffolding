@@ -1,10 +1,13 @@
 package net.crystalgames.scaffolding.region;
 
+import net.crystalgames.scaffolding.schematic.ScaffoldingUtils;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings("unused")
 public final class Region {
@@ -26,20 +29,13 @@ public final class Region {
         this.upper = max(p1, p2);
     }
 
-    private @NotNull Pos min(@NotNull Pos p1, @NotNull Pos p2) {
-        final int x = Math.min(p1.blockX(), p2.blockX());
-        final int y = Math.min(p1.blockY(), p2.blockY());
-        final int z = Math.min(p1.blockZ(), p2.blockZ());
-
-        return new Pos(x, y, z);
-    }
-
-    private Pos max(Pos p1, Pos p2) {
-        final int x = Math.max(p1.blockX(), p2.blockX());
-        final int y = Math.max(p1.blockY(), p2.blockY());
-        final int z = Math.max(p1.blockZ(), p2.blockZ());
-
-        return new Pos(x, y, z);
+    /**
+     * Force loads all {@link Chunk}s in this region.
+     *
+     * @return a {@link CompletableFuture<Region>} that will complete once all chunks in the region have been loaded. The future will give the region as the result so that you can chain it.
+     */
+    public CompletableFuture<Region> loadChunksWithinRegion() {
+        return ScaffoldingUtils.loadChunks(this);
     }
 
     /**
@@ -120,5 +116,21 @@ public final class Region {
                 "instance=" + instance + ", " +
                 "lower=" + lower + ", " +
                 "upper=" + upper + ']';
+    }
+
+    private @NotNull Pos min(@NotNull Pos p1, @NotNull Pos p2) {
+        final int x = Math.min(p1.blockX(), p2.blockX());
+        final int y = Math.min(p1.blockY(), p2.blockY());
+        final int z = Math.min(p1.blockZ(), p2.blockZ());
+
+        return new Pos(x, y, z);
+    }
+
+    private Pos max(Pos p1, Pos p2) {
+        final int x = Math.max(p1.blockX(), p2.blockX());
+        final int y = Math.max(p1.blockY(), p2.blockY());
+        final int z = Math.max(p1.blockZ(), p2.blockZ());
+
+        return new Pos(x, y, z);
     }
 }
