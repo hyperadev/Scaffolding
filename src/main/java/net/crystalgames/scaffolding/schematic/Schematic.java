@@ -52,11 +52,11 @@ public class Schematic implements Block.Setter {
         reset();
 
         return ScaffoldingUtils.loadChunks(region).thenRun(() -> {
-            final Instance instance = region.instance();
-            final Pos lower = region.lower();
-            final int width = region.width();
-            final int height = region.height();
-            final int length = region.length();
+            final Instance instance = region.getInstance();
+            final Pos lower = region.getLower();
+            final int width = region.getWidth();
+            final int height = region.getHeight();
+            final int length = region.getLength();
 
             setSize(width, height, length);
 
@@ -67,7 +67,7 @@ public class Schematic implements Block.Setter {
                         final int blockY = lower.blockY() + y;
                         final int blockZ = lower.blockZ() + z;
 
-                        final Block block = region.instance().getBlock(blockX, blockY, blockZ, Block.Getter.Condition.TYPE);
+                        final Block block = region.getInstance().getBlock(blockX, blockY, blockZ, Block.Getter.Condition.TYPE);
 
                         if (block != null) blocks[getIndex(x, y, z)] = block.stateId();
                     }
@@ -122,7 +122,7 @@ public class Schematic implements Block.Setter {
         return ScaffoldingUtils.loadChunks(region).thenApply((ignored) -> {
             final AbsoluteBlockBatch blockBatch = new AbsoluteBlockBatch();
 
-            apply(region.lower(), flipX, flipY, flipZ, blockBatch);
+            apply(region.getLower(), flipX, flipY, flipZ, blockBatch);
 
             final CompletableFuture<Region> future = new CompletableFuture<>();
             blockBatch.apply(instance, () -> future.complete(region));
@@ -143,10 +143,10 @@ public class Schematic implements Block.Setter {
 
     @ApiStatus.Internal
     private boolean isPlaceable(@NotNull final Region region) {
-        final Instance instance = region.instance();
+        final Instance instance = region.getInstance();
 
-        final boolean isAboveWorldBounds = region.upper().blockY() >= instance.getDimensionType().getMaxY();
-        final boolean isBelowWorldBounds = region.lower().blockY() < instance.getDimensionType().getMinY();
+        final boolean isAboveWorldBounds = region.getUpper().blockY() >= instance.getDimensionType().getMaxY();
+        final boolean isBelowWorldBounds = region.getLower().blockY() < instance.getDimensionType().getMinY();
 
         return !(isAboveWorldBounds || isBelowWorldBounds);
     }

@@ -77,16 +77,16 @@ public final class ScaffoldingUtils {
      * @return a {@link CompletableFuture<Void>} that will complete once all chunks in the region have been loaded
      */
     public static @NotNull CompletableFuture<Void> loadChunks(@NotNull final Region region) {
-        final Instance instance = region.instance();
+        final Instance instance = region.getInstance();
 
-        final int lengthX = region.upperChunkX() - region.lowerChunkX() + 1;
-        final int lengthZ = region.upperChunkZ() - region.lowerChunkZ() + 1;
+        final int lengthX = region.getUpperChunkX() - region.getLowerChunkX() + 1;
+        final int lengthZ = region.getUpperChunkZ() - region.getLowerChunkZ() + 1;
 
         final CompletableFuture<?>[] futures = new CompletableFuture[lengthX * lengthZ];
         int index = 0;
 
-        for (int x = region.lowerChunkX(); x <= region.upperChunkX(); ++x) {
-            for (int z = region.lowerChunkZ(); z <= region.upperChunkZ(); ++z) {
+        for (int x = region.getLowerChunkX(); x <= region.getUpperChunkX(); ++x) {
+            for (int z = region.getLowerChunkZ(); z <= region.getUpperChunkZ(); ++z) {
                 futures[index++] = instance.loadChunk(x, z);
             }
         }

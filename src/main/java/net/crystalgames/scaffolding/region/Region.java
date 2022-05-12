@@ -45,57 +45,57 @@ public final class Region {
     /**
      * @return the width of the region.
      */
-    public int width() {
+    public int getWidth() {
         return (upper.blockX() - lower.blockX()) + 1;
     }
 
     /**
      * @return the height of the region.
      */
-    public int height() {
+    public int getHeight() {
         return (upper.blockY() - lower.blockY()) + 1;
     }
 
     /**
      * @return the length of the region.
      */
-    public int length() {
+    public int getLength() {
         return (upper.blockZ() - lower.blockZ()) + 1;
     }
 
-    public int chunkSizeX() {
-        return upperChunkX() - lowerChunkX() + 1;
+    public int getChunkSizeX() {
+        return getUpperChunkX() - getLowerChunkX() + 1;
     }
 
-    public int upperChunkX() {
+    public int getUpperChunkX() {
         return upper.blockX() >> 4;
     }
 
-    public int lowerChunkX() {
+    public int getLowerChunkX() {
         return lower.blockX() >> 4;
     }
 
-    public int chunkSizeZ() {
-        return upperChunkZ() - lowerChunkZ() + 1;
+    public int getChunkSizeZ() {
+        return getUpperChunkZ() - getLowerChunkZ() + 1;
     }
 
-    public int upperChunkZ() {
+    public int getUpperChunkZ() {
         return upper.blockZ() >> 4;
     }
 
-    public int lowerChunkZ() {
+    public int getLowerChunkZ() {
         return lower.blockZ() >> 4;
     }
 
-    public Instance instance() {
+    public Instance getInstance() {
         return instance;
     }
 
-    public Pos lower() {
+    public Pos getLower() {
         return lower;
     }
 
-    public Pos upper() {
+    public Pos getUpper() {
         return upper;
     }
 
