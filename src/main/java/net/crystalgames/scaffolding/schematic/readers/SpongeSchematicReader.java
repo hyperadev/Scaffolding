@@ -12,7 +12,12 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-// https://github.com/EngineHub/WorldEdit/blob/303f5a76b2df70d63480f2126c9ef4b228eb3c59/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/SpongeSchematicReader.java#L261-L297
+/**
+ * A parser for Sponge schematics. (.schem files)
+ *
+ * <br><br><a href="https://github.com/SpongePowered/Schematic-Specification/blob/master/versions/schematic-3.md">Sponge format specification</a>
+ * <br><a href="https://github.com/EngineHub/WorldEdit/blob/303f5a76b2df70d63480f2126c9ef4b228eb3c59/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/SpongeSchematicReader.java#L261-L297">Reference parser</a>
+ */
 public class SpongeSchematicReader extends NBTSchematicReader {
 
     @Override

@@ -11,7 +11,12 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-// https://github.com/EngineHub/WorldEdit/blob/master/worldedit-core/src/main/java/com/sk89q/worldedit/extent/clipboard/io/MCEditSchematicReader.java
+/**
+ * A parser for MCEdit schematics. (.schematic files)
+ *
+ * <br><br><a href="https://minecraft.fandom.com/wiki/Schematic_file_format">MCEdit format specification</a>
+ * <br><a href="https://github.com/EngineHub/WorldEdit/blob/version/5.x/src/main/java/com/sk89q/worldedit/schematic/MCEditSchematicFormat.java">Reference parser</a>
+ */
 public class MCEditSchematicReader extends NBTSchematicReader {
 
     @Override
@@ -81,7 +86,7 @@ public class MCEditSchematicReader extends NBTSchematicReader {
         for (int x = 0; x < schematic.getWidth(); ++x) {
             for (int y = 0; y < schematic.getHeight(); ++y) {
                 for (int z = 0; z < schematic.getLength(); ++z) {
-                    int index = schematic.getIndex(x, y, z);
+                    int index = schematic.getBlockIndex(x, y, z);
                     // Let's just ignore unknown blocks for now
                     // TODO: log when unknown blocks are encountered?
                     short stateId = ScaffoldingUtils.stateIdFromLegacy(outdatedBlockIds[index], blockData[index]);

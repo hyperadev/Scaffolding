@@ -14,6 +14,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * A parsed schematic.
+ */
 @SuppressWarnings("unused")
 public class Schematic implements Block.Setter {
 
@@ -25,6 +28,9 @@ public class Schematic implements Block.Setter {
 
     private boolean locked;
 
+    /**
+     * Constructs a new schematic. The schematic will be locked and have an area of 0.
+     */
     public Schematic() {
         reset();
     }
@@ -69,7 +75,7 @@ public class Schematic implements Block.Setter {
 
                         final Block block = region.getInstance().getBlock(blockX, blockY, blockZ, Block.Getter.Condition.TYPE);
 
-                        if (block != null) blocks[getIndex(x, y, z)] = block.stateId();
+                        if (block != null) blocks[getBlockIndex(x, y, z)] = block.stateId();
                     }
                 }
             }
@@ -78,16 +84,31 @@ public class Schematic implements Block.Setter {
         });
     }
 
-    public void setSize(int sizeX, int sizeY, int sizeZ) {
-        this.width = sizeX;
-        this.height = sizeY;
-        this.length = sizeZ;
+    /**
+     * Sets the size of this schematic. {@code area} will be updated accordingly.
+     *
+     * @param width new width
+     * @param height new height
+     * @param length new length
+     */
+    public void setSize(int width, int height, int length) {
+        this.width = width;
+        this.height = height;
+        this.length = length;
 
-        area = sizeX * sizeY * sizeZ;
+        area = width * height * length;
         blocks = new short[area];
     }
 
-    public int getIndex(int x, int y, int z) {
+    /**
+     * Gets the index of a block in this schematic if blocks were stored in a 1-dimensional array.
+     *
+     * @param x block x coordinate
+     * @param y block y coordinate
+     * @param z block z coordinate
+     * @return the index of the block at the given coordinates
+     */
+    public int getBlockIndex(int x, int y, int z) {
         return y * width * length + z * width + x;
     }
 
@@ -167,32 +188,50 @@ public class Schematic implements Block.Setter {
             for (int y = 0; y < height; y++) {
                 for (int z = 0; z < length; z++) {
                     // Will the JVM optimize out the ternary operator? I hope so.
-                    final int indexX = flipX ? width - x - 1 : x;
-                    final int indexY = flipY ? height - y - 1 : y;
-                    final int indexZ = flipZ ? length - z - 1 : z;
+                    final int relativeBlockX = flipX ? width - x - 1 : x;
+                    final int relativeBlockY = flipY ? height - y - 1 : y;
+                    final int relativeBlockZ = flipZ ? length - z - 1 : z;
 
-                    final int blockX = lower.blockX() + x;
-                    final int blockY = lower.blockY() + y;
-                    final int blockZ = lower.blockZ() + z;
+                    final int absoluteX = lower.blockX() + x;
+                    final int absoluteY = lower.blockY() + y;
+                    final int absoluteZ = lower.blockZ() + z;
 
-                    final Block block = getBlock(indexX, indexY, indexZ);
+                    final Block block = getBlock(relativeBlockX, relativeBlockY, relativeBlockZ);
 
-                    if (block != null) setter.setBlock(blockX, blockY, blockZ, block);
+                    if (block != null) setter.setBlock(absoluteX, absoluteY, absoluteZ, block);
                 }
             }
         }
     }
 
-    @Nullable
-    public Block getBlock(int indexX, int indexY, int indexZ) {
-        short stateId = getStateId(indexX, indexY, indexZ);
+    /**
+     * @param x block x coordinate
+     * @param y block y coordinate
+     * @param z block z coordinate
+     * @return the block at the given coordinates
+     */
+    @Nullable public Block getBlock(final int x, final int y, final int z) {
+        short stateId = getStateId(x, y, z);
         return Block.fromStateId(stateId);
     }
 
+    /**
+     * @param x block x coordinate
+     * @param y block y coordinate
+     * @param z block z coordinate
+     * @return the state ID at the given coordinates
+     */
     public short getStateId(int x, int y, int z) {
-        return blocks[getIndex(x, y, z)];
+        return blocks[getBlockIndex(x, y, z)];
     }
 
+    /**
+     * @param unit the {@link GenerationUnit} to fork
+     * @param position the {@link Pos} to place the schematic at. Offsets will be applied to this position to get the lower corner.
+     * @param flipX   whether to flip the schematic along the X axis
+     * @param flipY  whether to flip the schematic along the Y axis
+     * @param flipZ whether to flip the schematic along the Z axis
+     */
     public void fork(@NotNull GenerationUnit unit, @NotNull Pos position, boolean flipX, boolean flipY, boolean flipZ) {
         if (locked) throw new IllegalStateException("Cannot fork a locked schematic.");
 
@@ -204,6 +243,10 @@ public class Schematic implements Block.Setter {
         apply(position, flipX, flipY, flipZ, forkModifier);
     }
 
+    /**
+     * @param position the {@link Pos} of the block to set
+     * @param block the {@link Block} to set
+     */
     public void setBlock(@NotNull Pos position, @NotNull Block block) {
         setBlock(position.blockX(), position.blockY(), position.blockZ(), block);
     }
@@ -212,8 +255,14 @@ public class Schematic implements Block.Setter {
         setBlock(x, y, z, block.stateId());
     }
 
+    /**
+     * @param x the X coordinate
+     * @param y the Y coordinate
+     * @param z the Z coordinate
+     * @param stateId the state ID
+     */
     public void setBlock(int x, int y, int z, short stateId) {
-        blocks[getIndex(x, y, z)] = stateId;
+        blocks[getBlockIndex(x, y, z)] = stateId;
     }
 
     /**
@@ -281,10 +330,18 @@ public class Schematic implements Block.Setter {
         return area;
     }
 
+    /**
+     * @return true if this schematic is locked, false otherwise
+     */
     public boolean isLocked() {
         return locked;
     }
 
+    /**
+     * Sets the locked state of this schematic. Locked schematics can't be built, applied or forked, or saved.
+     *
+     * @param locked whether to lock this schematic
+     */
     public void setLocked(boolean locked) {
         this.locked = locked;
     }
@@ -296,6 +353,11 @@ public class Schematic implements Block.Setter {
         setOffset(offset.blockX(), offset.blockY(), offset.blockZ());
     }
 
+    /**
+     * @param x new x offset
+     * @param y new y offset
+     * @param z new z offset
+     */
     public void setOffset(int x, int y, int z) {
         offsetX = x;
         offsetY = y;

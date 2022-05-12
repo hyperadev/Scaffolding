@@ -4,11 +4,16 @@ import net.crystalgames.scaffolding.schematic.ScaffoldingUtils;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.Instance;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 
+/**
+ * Represents a rectangle 3 dimensional region of blocks withing an {@link Instance}.
+ */
 @SuppressWarnings("unused")
 public final class Region {
 
@@ -20,13 +25,13 @@ public final class Region {
      * Constructs a new region. The region is defined by the two provided positions. As long as the two positions are opposite of each other in the region, {@code lower} and {@code upper} will be calculated automatically.
      *
      * @param instance The instance that the region is in.
-     * @param p1 The first point of the region.
-     * @param p2 The second point of the region.
+     * @param p1       The first point of the region.
+     * @param p2       The second point of the region.
      */
     public Region(@NotNull final Instance instance, @NotNull final Pos p1, @NotNull final Pos p2) {
-        this.instance = instance;
-        this.lower = min(p1, p2);
-        this.upper = max(p1, p2);
+        this.instance = Objects.requireNonNull(instance);
+        this.lower = calcPos(p1, p2, Math::min);
+        this.upper = calcPos(p1, p2, Math::max);
     }
 
     /**
@@ -39,60 +44,96 @@ public final class Region {
     }
 
     /**
-     * @return the width of the region.
+     * @return the width of this region.
      */
     public int getWidth() {
         return (upper.blockX() - lower.blockX()) + 1;
     }
 
     /**
-     * @return the height of the region.
+     * @return the height of this region.
      */
     public int getHeight() {
         return (upper.blockY() - lower.blockY()) + 1;
     }
 
     /**
-     * @return the length of the region.
+     * @return the length of this region.
      */
     public int getLength() {
         return (upper.blockZ() - lower.blockZ()) + 1;
     }
 
-    public int getChunkSizeX() {
-        return getUpperChunkX() - getLowerChunkX() + 1;
-    }
-
+    /**
+     * @return the x coordinate of the upper {@link Chunk} of this region.
+     */
+    @Contract(pure = true)
     public int getUpperChunkX() {
         return upper.blockX() >> 4;
     }
 
-    public int getLowerChunkX() {
-        return lower.blockX() >> 4;
-    }
-
-    public int getChunkSizeZ() {
-        return getUpperChunkZ() - getLowerChunkZ() + 1;
-    }
-
+    /**
+     * @return the z coordinate of the upper {@link Chunk} of this region.
+     */
+    @Contract(pure = true)
     public int getUpperChunkZ() {
         return upper.blockZ() >> 4;
     }
 
+    /**
+     * @return the x coordinate of the lower {@link Chunk} of this region.
+     */
+    @Contract(pure = true)
+    public int getLowerChunkX() {
+        return lower.blockX() >> 4;
+    }
+
+    /**
+     * @return the z coordinate of the lower {@link Chunk} of this region.
+     */
+    @Contract(pure = true)
     public int getLowerChunkZ() {
         return lower.blockZ() >> 4;
     }
 
-    public Instance getInstance() {
+    /**
+     * @return the number of {@link Chunk}s along the x coordinate of this region.
+     */
+    @Contract(pure = true)
+    public int getChunkSizeX() {
+        return getUpperChunkX() - getLowerChunkX() + 1;
+    }
+
+    /**
+     * @return the number of {@link Chunk}s along the z coordinate of this region.
+     */
+    @Contract(pure = true)
+    public int getChunkSizeZ() {
+        return getUpperChunkZ() - getLowerChunkZ() + 1;
+    }
+
+    /**
+     * @return the instance that this region is in
+     */
+    @Contract(pure = true)
+    public @NotNull Instance getInstance() {
         return instance;
     }
 
-    public Pos getLower() {
-        return lower;
+    /**
+     * @return the upper {@link Pos} of this region.
+     */
+    @Contract(pure = true)
+    public @NotNull Pos getUpper() {
+        return upper;
     }
 
-    public Pos getUpper() {
-        return upper;
+    /**
+     * @return the lower {@link Pos} of this region.
+     */
+    @Contract(pure = true)
+    public @NotNull Pos getLower() {
+        return lower;
     }
 
     @Override
@@ -118,18 +159,10 @@ public final class Region {
                 "upper=" + upper + ']';
     }
 
-    private @NotNull Pos min(@NotNull Pos p1, @NotNull Pos p2) {
-        final int x = Math.min(p1.blockX(), p2.blockX());
-        final int y = Math.min(p1.blockY(), p2.blockY());
-        final int z = Math.min(p1.blockZ(), p2.blockZ());
-
-        return new Pos(x, y, z);
-    }
-
-    private Pos max(Pos p1, Pos p2) {
-        final int x = Math.max(p1.blockX(), p2.blockX());
-        final int y = Math.max(p1.blockY(), p2.blockY());
-        final int z = Math.max(p1.blockZ(), p2.blockZ());
+    private @NotNull Pos calcPos(@NotNull Pos p1, @NotNull Pos p2, BiFunction<Integer, Integer, Integer> operation) {
+        final int x = operation.apply(p1.blockX(), p2.blockX());
+        final int y = operation.apply(p1.blockY(), p2.blockY());
+        final int z = operation.apply(p1.blockZ(), p2.blockZ());
 
         return new Pos(x, y, z);
     }

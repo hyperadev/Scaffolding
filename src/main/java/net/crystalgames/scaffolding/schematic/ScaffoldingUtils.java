@@ -49,7 +49,7 @@ public final class ScaffoldingUtils {
     }
 
     /**
-     * @param legacyBlockId The legacy block ID
+     * @param legacyBlockId   The legacy block ID
      * @param legacyBlockData The legacy block data
      * @return The modern state ID for the given legacy block ID and data
      */

@@ -14,8 +14,9 @@ import java.io.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * A static utility class primarily used to parse Schematics.
+ * A static utility class primarily used to parse schematics.
  */
+@SuppressWarnings("unused")
 public final class Scaffolding {
 
     private static final NBTSchematicReader MC_EDIT_SCHEMATIC_READER = new MCEditSchematicReader();
@@ -28,11 +29,11 @@ public final class Scaffolding {
     /**
      * Automatically detects the schematic format from the provided {@link NBTCompound} and parses it.
      *
-     * @param nbtTag The NBT tag to read from
+     * @param nbtTag The {@link NBTCompound} to read from
      * @return A {@link CompletableFuture<Schematic>} that will complete with the schematic once it's loaded
      * @throws NBTException If the NBT tag is invalid
      */
-    public static @NotNull CompletableFuture<Schematic> fromNbt(@NotNull final NBTCompound nbtTag) throws NBTException {
+    public static @NotNull CompletableFuture<Schematic> fromNbt(@NotNull final NBTCompound nbtTag) throws NBTException, IllegalArgumentException {
         final Schematic schematic = new Schematic();
 
         if (nbtTag.contains("Blocks")) return MC_EDIT_SCHEMATIC_READER.read(nbtTag, schematic);
@@ -41,7 +42,7 @@ public final class Scaffolding {
     }
 
     /**
-     * Automatically detects the type of schematic and parses the file
+     * Automatically detects the type of schematic and parses the file.
      *
      * @param file Schematic file
      * @return parsed schematic
@@ -70,4 +71,37 @@ public final class Scaffolding {
         return fromNbt(nbtTag);
     }
 
+    /**
+     * Automatically detects the schematic format from the provided {@link NBTCompound} and parses it synchronously.
+     *
+     * @param nbtTag the {@link NBTCompound} to read from
+     * @return the parsed {@link Schematic}
+     * @throws NBTException if the NBT tag is invalid
+     * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
+     */
+    public static @NotNull Schematic fromNbtSync(@NotNull final NBTCompound nbtTag) throws NBTException, IllegalArgumentException {
+        return fromNbt(nbtTag).join();
+    }
+
+    /**
+     * @param file The {@link File} to read from
+     * @return The parsed {@link Schematic}
+     * @throws IOException             if the file is invalid
+     * @throws NBTException            if the schematic is invalid
+     * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
+     */
+    public static @NotNull Schematic fromFileSync(@NotNull final File file) throws IOException, NBTException, IllegalArgumentException {
+        return fromFile(file).join();
+    }
+
+    /**
+     * @param inputStream The {@link InputStream} to read from
+     * @return The parsed {@link Schematic}
+     * @throws IOException            if the input stream is invalid
+     * @throws NBTException           if the schematic is invalid
+     * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
+     */
+    public static @NotNull Schematic fromStreamSync(@NotNull final InputStream inputStream) throws IOException, NBTException, IllegalArgumentException {
+        return fromStream(inputStream).join();
+    }
 }
