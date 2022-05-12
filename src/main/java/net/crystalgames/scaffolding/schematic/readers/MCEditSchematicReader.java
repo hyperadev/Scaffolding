@@ -15,7 +15,7 @@ import java.util.concurrent.CompletionException;
 public class MCEditSchematicReader extends NBTSchematicReader {
 
     @Override
-    public CompletableFuture<Schematic> read(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) {
+    public CompletableFuture<Schematic> read(@NotNull final NBTCompound nbtTag, @NotNull final Schematic schematic) {
         schematic.reset();
 
         return CompletableFuture.supplyAsync(() -> {
@@ -23,8 +23,8 @@ public class MCEditSchematicReader extends NBTSchematicReader {
                 if (!nbtTag.containsKey("Blocks")) throw new NBTException("Invalid Schematic: No Blocks");
 
                 readSizes(schematic, nbtTag);
-                readBlocksData(schematic, nbtTag);
                 readOffsets(schematic, nbtTag);
+                readBlocksData(schematic, nbtTag);
 
                 schematic.setLocked(false);
 
@@ -35,14 +35,6 @@ public class MCEditSchematicReader extends NBTSchematicReader {
         });
     }
 
-    private void readOffsets(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
-        int weOffsetX = getInteger(nbtTag, "WEOffsetX", "Invalid Schematic: No WEOffsetX");
-        int weOffsetY = getInteger(nbtTag, "WEOffsetY", "Invalid Schematic: No WEOffsetY");
-        int weOffsetZ = getInteger(nbtTag, "WEOffsetZ", "Invalid Schematic: No WEOffsetZ");
-
-        schematic.setOffset(weOffsetX, weOffsetY, weOffsetZ);
-    }
-
     private void readSizes(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
         short width = getShort(nbtTag, "Width", "Invalid Schematic: No Width");
         short height = getShort(nbtTag, "Height", "Invalid Schematic: No Height");
@@ -51,6 +43,13 @@ public class MCEditSchematicReader extends NBTSchematicReader {
         schematic.setSize(width, height, length);
     }
 
+    private void readOffsets(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
+        int weOffsetX = getInteger(nbtTag, "WEOffsetX", "Invalid Schematic: No WEOffsetX");
+        int weOffsetY = getInteger(nbtTag, "WEOffsetY", "Invalid Schematic: No WEOffsetY");
+        int weOffsetZ = getInteger(nbtTag, "WEOffsetZ", "Invalid Schematic: No WEOffsetZ");
+
+        schematic.setOffset(weOffsetX, weOffsetY, weOffsetZ);
+    }
 
     private void readBlocksData(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
         String materials = getString(nbtTag, "Materials", "Invalid Schematic: No Materials");

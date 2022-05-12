@@ -13,7 +13,14 @@ public final class Region {
     private final Pos lower;
     private final Pos upper;
 
-    public Region(@NotNull Instance instance, @NotNull Pos p1, @NotNull Pos p2) {
+    /**
+     * Constructs a new region. The region is defined by the two provided positions. As long as the two positions are opposite of each other in the region, {@code lower} and {@code upper} will be calculated automatically.
+     *
+     * @param instance The instance that the region is in.
+     * @param p1 The first point of the region.
+     * @param p2 The second point of the region.
+     */
+    public Region(@NotNull final Instance instance, @NotNull final Pos p1, @NotNull final Pos p2) {
         this.instance = instance;
         this.lower = min(p1, p2);
         this.upper = max(p1, p2);
@@ -35,30 +42,23 @@ public final class Region {
         return new Pos(x, y, z);
     }
 
-    public int upperChunkX() {
-        return upper.blockX() >> 4;
-    }
-
-    public int upperChunkZ() {
-        return upper.blockZ() >> 4;
-    }
-
-    public int lowerChunkX() {
-        return lower.blockX() >> 4;
-    }
-
-    public int lowerChunkZ() {
-        return lower.blockZ() >> 4;
-    }
-
+    /**
+     * @return the width of the region.
+     */
     public int width() {
         return (upper.blockX() - lower.blockX()) + 1;
     }
 
+    /**
+     * @return the height of the region.
+     */
     public int height() {
         return (upper.blockY() - lower.blockY()) + 1;
     }
 
+    /**
+     * @return the length of the region.
+     */
     public int length() {
         return (upper.blockZ() - lower.blockZ()) + 1;
     }
@@ -67,8 +67,24 @@ public final class Region {
         return upperChunkX() - lowerChunkX() + 1;
     }
 
+    public int upperChunkX() {
+        return upper.blockX() >> 4;
+    }
+
+    public int lowerChunkX() {
+        return lower.blockX() >> 4;
+    }
+
     public int chunkSizeZ() {
         return upperChunkZ() - lowerChunkZ() + 1;
+    }
+
+    public int upperChunkZ() {
+        return upper.blockZ() >> 4;
+    }
+
+    public int lowerChunkZ() {
+        return lower.blockZ() >> 4;
     }
 
     public Instance instance() {
@@ -84,6 +100,11 @@ public final class Region {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(instance, lower, upper);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
@@ -91,11 +112,6 @@ public final class Region {
         return Objects.equals(this.instance, that.instance) &&
                 Objects.equals(this.lower, that.lower) &&
                 Objects.equals(this.upper, that.upper);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(instance, lower, upper);
     }
 
     @Override

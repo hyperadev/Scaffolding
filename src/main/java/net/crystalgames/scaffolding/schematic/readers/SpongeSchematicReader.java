@@ -16,14 +16,14 @@ import java.util.concurrent.CompletionException;
 public class SpongeSchematicReader extends NBTSchematicReader {
 
     @Override
-    public CompletableFuture<Schematic> read(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) {
+    public CompletableFuture<Schematic> read(@NotNull final NBTCompound nbtTag, @NotNull final Schematic schematic) {
         schematic.reset();
 
         return CompletableFuture.supplyAsync(() -> {
             try {
                 readSizes(schematic, nbtTag);
-                readBlockPalette(schematic, nbtTag);
                 readOffsets(schematic, nbtTag);
+                readBlockPalette(schematic, nbtTag);
 
                 schematic.setLocked(false);
                 return schematic;
@@ -33,19 +33,19 @@ public class SpongeSchematicReader extends NBTSchematicReader {
         });
     }
 
+    private void readSizes(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
+        short width = getShort(nbtTag, "Width", "Invalid Schematic: No Width");
+        short height = getShort(nbtTag, "Height", "Invalid Schematic: No Height");
+        short length = getShort(nbtTag, "Length", "Invalid Schematic: No Length");
+        schematic.setSize(width, height, length);
+    }
+
     private void readOffsets(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
         NBTCompound metadata = getCompound(nbtTag, "Metadata", "Invalid Schematic: No Metadata");
         int weOffsetX = getInteger(metadata, "WEOffsetX", "Invalid Schematic: No WEOffsetX In Metadata");
         int weOffsetY = getInteger(metadata, "WEOffsetY", "Invalid Schematic: No WEOffsetY In Metadata");
         int weOffsetZ = getInteger(metadata, "WEOffsetZ", "Invalid Schematic: No WEOffsetZ In Metadata");
         schematic.setOffset(weOffsetX, weOffsetY, weOffsetZ);
-    }
-
-    private void readSizes(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
-        short width = getShort(nbtTag, "Width", "Invalid Schematic: No Width");
-        short height = getShort(nbtTag, "Height", "Invalid Schematic: No Height");
-        short length = getShort(nbtTag, "Length", "Invalid Schematic: No Length");
-        schematic.setSize(width, height, length);
     }
 
     private void readBlockPalette(@NotNull Schematic schematic, @NotNull NBTCompound nbtTag) throws NBTException {
@@ -102,12 +102,6 @@ public class SpongeSchematicReader extends NBTSchematicReader {
         }
     }
 
-    private Block getBlock(@NotNull String input) {
-        String namespaceId = input.split("\\[")[0];
-
-        return Block.fromNamespaceId(namespaceId);
-    }
-
     private short getStateId(@NotNull String input) {
         Block block = getBlock(input);
         if (block == null) return 0;
@@ -127,5 +121,11 @@ public class SpongeSchematicReader extends NBTSchematicReader {
                 return block.stateId();
             }
         } else return block.stateId();
+    }
+
+    private Block getBlock(@NotNull String input) {
+        String namespaceId = input.split("\\[")[0];
+
+        return Block.fromNamespaceId(namespaceId);
     }
 }

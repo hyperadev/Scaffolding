@@ -9,7 +9,13 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class NBTSchematicReader {
 
-    public abstract CompletableFuture<Schematic> read(@NotNull Schematic schematic, @NotNull NBTCompound compound) throws NBTException;
+    /**
+     * @param compound The {@link NBTCompound} to read from
+     * @param schematic The {@link Schematic} to read into
+     * @return a {@link CompletableFuture<Schematic>} that will be completed with the {@link Schematic}
+     * @throws NBTException If the provided NBT tag is invalid
+     */
+    public abstract CompletableFuture<Schematic> read(@NotNull final NBTCompound compound, @NotNull final Schematic schematic) throws NBTException;
 
     protected int getInteger(@NotNull NBTCompound compound, @NotNull String key, String exceptionMessage) throws NBTException {
         Integer value = compound.getInt(key);
