@@ -26,6 +26,24 @@ public final class Scaffolding {
         throw new UnsupportedOperationException();
     }
 
+    public static CompletableFuture<Schematic> fromNbt(@NotNull NBTCompound nbtTag, @NotNull Schematic schematic) throws NBTException {
+        if (nbtTag.contains("Blocks")) return MC_EDIT_SCHEMATIC_READER.read(nbtTag, schematic);
+        else if (nbtTag.contains("Palette")) return SPONGE_SCHEMATIC_READER.read(nbtTag, schematic);
+        else throw new IllegalArgumentException("Unknown schematic type.");
+    }
+
+    public static CompletableFuture<Schematic> fromStream(@NotNull InputStream inputStream, @NotNull Schematic schematic) throws IOException, NBTException {
+        final NBTReader reader = new NBTReader(inputStream, CompressedProcesser.GZIP);
+        final NBTCompound nbtTag = (NBTCompound) reader.read();
+
+        return fromNbt(nbtTag, schematic);
+    }
+
+    public static CompletableFuture<Schematic> fromFile(@NotNull File file, @NotNull Schematic schematic) throws IOException, NBTException {
+        if (!file.exists()) throw new FileNotFoundException("Invalid Schematic: File does not exist");
+        return fromStream(new FileInputStream(file), schematic);
+    }
+
     /**
      * Automatically detects the schematic format from the provided {@link NBTCompound} and parses it.
      *
@@ -34,25 +52,7 @@ public final class Scaffolding {
      * @throws NBTException If the NBT tag is invalid
      */
     public static @NotNull CompletableFuture<Schematic> fromNbt(@NotNull final NBTCompound nbtTag) throws NBTException, IllegalArgumentException {
-        final Schematic schematic = new Schematic();
-
-        if (nbtTag.contains("Blocks")) return MC_EDIT_SCHEMATIC_READER.read(nbtTag, schematic);
-        else if (nbtTag.contains("Palette")) return SPONGE_SCHEMATIC_READER.read(nbtTag, schematic);
-        else throw new IllegalArgumentException("Unknown schematic type.");
-    }
-
-    /**
-     * Automatically detects the type of schematic and parses the file.
-     *
-     * @param file Schematic file
-     * @return parsed schematic
-     * @throws IOException              if the file is invalid
-     * @throws NBTException             if the schematic is invalid
-     * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
-     */
-    public static @NotNull CompletableFuture<Schematic> fromFile(@NotNull final File file) throws IOException, NBTException, IllegalArgumentException {
-        if (!file.exists()) throw new FileNotFoundException("Invalid Schematic: File does not exist");
-        return fromStream(new FileInputStream(file));
+        return fromNbt(nbtTag, new Schematic());
     }
 
     /**
@@ -65,10 +65,33 @@ public final class Scaffolding {
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
      */
     public static @NotNull CompletableFuture<Schematic> fromStream(@NotNull final InputStream inputStream) throws IOException, NBTException, IllegalArgumentException {
-        final NBTReader reader = new NBTReader(inputStream, CompressedProcesser.GZIP);
-        final NBTCompound nbtTag = (NBTCompound) reader.read();
+        return fromStream(inputStream, new Schematic());
+    }
 
-        return fromNbt(nbtTag);
+
+    /**
+     * Automatically detects the type of schematic and parses the file.
+     *
+     * @param file Schematic file
+     * @return parsed schematic
+     * @throws IOException              if the file is invalid
+     * @throws NBTException             if the schematic is invalid
+     * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
+     */
+    public static @NotNull CompletableFuture<Schematic> fromFile(@NotNull final File file) throws IOException, NBTException, IllegalArgumentException {
+        return fromFile(file, new Schematic());
+    }
+
+    public static @NotNull Schematic fromNbtSync(@NotNull NBTCompound nbtTag, @NotNull Schematic schematic) throws NBTException {
+        return fromNbt(nbtTag, schematic).join();
+    }
+
+    public static @NotNull Schematic fromStreamSync(@NotNull InputStream inputStream, @NotNull Schematic schematic) throws IOException, NBTException {
+        return fromStream(inputStream, schematic).join();
+    }
+
+    public static @NotNull Schematic fromFileSync(@NotNull File file, @NotNull Schematic schematic) throws IOException, NBTException {
+        return fromFile(file, schematic).join();
     }
 
     /**
@@ -84,17 +107,6 @@ public final class Scaffolding {
     }
 
     /**
-     * @param file The {@link File} to read from
-     * @return The parsed {@link Schematic}
-     * @throws IOException             if the file is invalid
-     * @throws NBTException            if the schematic is invalid
-     * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
-     */
-    public static @NotNull Schematic fromFileSync(@NotNull final File file) throws IOException, NBTException, IllegalArgumentException {
-        return fromFile(file).join();
-    }
-
-    /**
      * @param inputStream The {@link InputStream} to read from
      * @return The parsed {@link Schematic}
      * @throws IOException            if the input stream is invalid
@@ -103,5 +115,16 @@ public final class Scaffolding {
      */
     public static @NotNull Schematic fromStreamSync(@NotNull final InputStream inputStream) throws IOException, NBTException, IllegalArgumentException {
         return fromStream(inputStream).join();
+    }
+
+    /**
+     * @param file The {@link File} to read from
+     * @return The parsed {@link Schematic}
+     * @throws IOException             if the file is invalid
+     * @throws NBTException            if the schematic is invalid
+     * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
+     */
+    public static @NotNull Schematic fromFileSync(@NotNull final File file) throws IOException, NBTException, IllegalArgumentException {
+        return fromFile(file).join();
     }
 }

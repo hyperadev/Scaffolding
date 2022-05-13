@@ -54,10 +54,10 @@ public class Schematic implements Block.Setter {
      * @param region the {@link Region} to copy from
      * @return a {@link CompletableFuture<Schematic>} that will complete once all blocks have been copied
      */
-    public @NotNull CompletableFuture<Void> copy(@NotNull final Region region) {
+    public @NotNull CompletableFuture<Schematic> copy(@NotNull final Region region) {
         reset();
 
-        return ScaffoldingUtils.loadChunks(region).thenRun(() -> {
+        return ScaffoldingUtils.loadChunks(region).thenApply((v) -> {
             final Instance instance = region.getInstance();
             final Point lower = region.getLower();
             final int width = region.getWidth();
@@ -81,6 +81,7 @@ public class Schematic implements Block.Setter {
             }
 
             locked = false;
+            return this;
         });
     }
 
@@ -140,13 +141,14 @@ public class Schematic implements Block.Setter {
         if (!isPlaceable(region))
             throw new IllegalStateException("Cannot build schematic at this position since blocks would go outside of world boundaries. " + position);
 
-        return ScaffoldingUtils.loadChunks(region).thenApply((ignored) -> {
+        return ScaffoldingUtils.loadChunks(region).thenApplyAsync((ignored) -> {
             final AbsoluteBlockBatch blockBatch = new AbsoluteBlockBatch();
 
-             apply(region.getLower(), flipX, flipY, flipZ, blockBatch);
+            apply(region.getLower(), flipX, flipY, flipZ, blockBatch);
+            System.out.println("Building schematic.");
 
             final CompletableFuture<Region> future = new CompletableFuture<>();
-            blockBatch.apply(instance, () -> future.complete(region));
+            blockBatch.apply(instance, () -> future.complete(null));
             return future.join();
         });
     }
@@ -373,9 +375,25 @@ public class Schematic implements Block.Setter {
     /**
      * @param instance the {@link Instance} to check
      * @param position the {@link Point} to check
-     * @return {@code true} if the given position is within the bounds of the given instance, {@code false} otherwise
+     * @return {@code true} if the given position is within the bounds of the given instance, {@code false} otherwise. If either the instance or the position is null, false is returned.
      */
-    public boolean isPlaceable(@NotNull final Instance instance, @NotNull final Point position) {
+    public boolean isPlaceable(@Nullable final Instance instance, @Nullable final Point position) {
+        if(instance == null || position == null) return false;
+
         return isPlaceable(getContainingRegion(instance, position));
+    }
+
+    @Override
+    public String toString() {
+        return "Schematic{" +
+                ", width=" + width +
+                ", height=" + height +
+                ", length=" + length +
+                ", offsetX=" + offsetX +
+                ", offsetY=" + offsetY +
+                ", offsetZ=" + offsetZ +
+                ", area=" + area +
+                ", locked=" + locked +
+                '}';
     }
 }
