@@ -1,7 +1,8 @@
 package net.crystalgames.scaffolding.region;
 
 import net.crystalgames.scaffolding.schematic.ScaffoldingUtils;
-import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Point;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.Instance;
 import org.jetbrains.annotations.Contract;
@@ -18,8 +19,8 @@ import java.util.function.BiFunction;
 public final class Region {
 
     private final Instance instance;
-    private final Pos lower;
-    private final Pos upper;
+    private final Point lower;
+    private final Point upper;
 
     /**
      * Constructs a new region. The region is defined by the two provided positions. As long as the two positions are opposite of each other in the region, {@code lower} and {@code upper} will be calculated automatically.
@@ -28,10 +29,10 @@ public final class Region {
      * @param p1       The first point of the region.
      * @param p2       The second point of the region.
      */
-    public Region(@NotNull final Instance instance, @NotNull final Pos p1, @NotNull final Pos p2) {
+    public Region(@NotNull final Instance instance, @NotNull final Point p1, @NotNull final Point p2) {
         this.instance = Objects.requireNonNull(instance);
-        this.lower = calcPos(p1, p2, Math::min);
-        this.upper = calcPos(p1, p2, Math::max);
+        this.lower = calcPoint(p1, p2, Math::min);
+        this.upper = calcPoint(p1, p2, Math::max);
     }
 
     /**
@@ -121,18 +122,18 @@ public final class Region {
     }
 
     /**
-     * @return the upper {@link Pos} of this region.
+     * @return the upper {@link Point} of this region.
      */
     @Contract(pure = true)
-    public @NotNull Pos getUpper() {
+    public @NotNull Point getUpper() {
         return upper;
     }
 
     /**
-     * @return the lower {@link Pos} of this region.
+     * @return the lower {@link Point} of this region.
      */
     @Contract(pure = true)
-    public @NotNull Pos getLower() {
+    public @NotNull Point getLower() {
         return lower;
     }
 
@@ -159,11 +160,11 @@ public final class Region {
                 "upper=" + upper + ']';
     }
 
-    private @NotNull Pos calcPos(@NotNull Pos p1, @NotNull Pos p2, BiFunction<Integer, Integer, Integer> operation) {
+    private @NotNull Point calcPoint(@NotNull Point p1, @NotNull Point p2, BiFunction<Integer, Integer, Integer> operation) {
         final int x = operation.apply(p1.blockX(), p2.blockX());
         final int y = operation.apply(p1.blockY(), p2.blockY());
         final int z = operation.apply(p1.blockZ(), p2.blockZ());
 
-        return new Pos(x, y, z);
+        return new Vec(x, y, z);
     }
 }

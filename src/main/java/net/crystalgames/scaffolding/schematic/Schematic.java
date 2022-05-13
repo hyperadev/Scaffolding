@@ -2,7 +2,7 @@ package net.crystalgames.scaffolding.schematic;
 
 import net.crystalgames.scaffolding.region.Region;
 import net.minestom.server.coordinate.Point;
-import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.AbsoluteBlockBatch;
 import net.minestom.server.instance.block.Block;
@@ -59,7 +59,7 @@ public class Schematic implements Block.Setter {
 
         return ScaffoldingUtils.loadChunks(region).thenRun(() -> {
             final Instance instance = region.getInstance();
-            final Pos lower = region.getLower();
+            final Point lower = region.getLower();
             final int width = region.getWidth();
             final int height = region.getHeight();
             final int length = region.getLength();
@@ -113,27 +113,27 @@ public class Schematic implements Block.Setter {
     }
 
     /**
-     * Builds this schematic in the given {@link Instance} at the given {@link Pos}.
+     * Builds this schematic in the given {@link Instance} at the given {@link Point}.
      *
      * @param instance the {@link Instance} to build this schematic in
-     * @param position the {@link Pos} to build this schematic at (note: the schematics offset will be applied to this position to get the lower corner)
+     * @param position the {@link Point} to build this schematic at (note: the schematics offset will be applied to this position to get the lower corner)
      * @return a {@link CompletableFuture<Schematic>} that will complete once the schematic has been built
      */
-    public @NotNull CompletableFuture<Region> build(@NotNull final Instance instance, @NotNull final Pos position) {
+    public @NotNull CompletableFuture<Region> build(@NotNull final Instance instance, @NotNull final Point position) {
         return build(instance, position, false, false, false);
     }
 
     /**
-     * Builds this schematic in the given {@link Instance} at the given {@link Pos}. The schematic can be flipped along the X, Y, or Z axis using the {@code flipX}, {@code flipY}, and {@code flipZ} parameters.
+     * Builds this schematic in the given {@link Instance} at the given {@link Point}. The schematic can be flipped along the X, Y, or Z axis using the {@code flipX}, {@code flipY}, and {@code flipZ} parameters.
      *
      * @param instance the {@link Instance} to build this schematic in
-     * @param position the {@link Pos} to build this schematic at (note: the schematics offset will be applied to this position to get the lower corner)
+     * @param position the {@link Point} to build this schematic at (note: the schematics offset will be applied to this position to get the lower corner)
      * @param flipX    whether to flip the schematic along the X axis
      * @param flipY    whether to flip the schematic along the Y axis
      * @param flipZ    whether to flip the schematic along the Z axis
      * @return a {@link CompletableFuture<Schematic>} that will complete once the schematic has been built
      */
-    public @NotNull CompletableFuture<Region> build(@NotNull final Instance instance, @NotNull final Pos position, final boolean flipX, final boolean flipY, final boolean flipZ) {
+    public @NotNull CompletableFuture<Region> build(@NotNull final Instance instance, @NotNull final Point position, final boolean flipX, final boolean flipY, final boolean flipZ) {
         if (locked) throw new IllegalStateException("Cannot build a locked schematic.");
 
         final Region region = getContainingRegion(instance, position);
@@ -143,22 +143,20 @@ public class Schematic implements Block.Setter {
         return ScaffoldingUtils.loadChunks(region).thenApply((ignored) -> {
             final AbsoluteBlockBatch blockBatch = new AbsoluteBlockBatch();
 
-            apply(region.getLower(), flipX, flipY, flipZ, blockBatch);
+             apply(region.getLower(), flipX, flipY, flipZ, blockBatch);
 
             final CompletableFuture<Region> future = new CompletableFuture<>();
             blockBatch.apply(instance, () -> future.complete(region));
-            future.join();
-
-            return region;
+            return future.join();
         });
     }
 
     /**
      * @param instance the {@link Instance} to check
-     * @param position the {@link Pos} to check
+     * @param position the {@link Point} to check
      * @return the {@link Region} that this schematic would take up if placed at the given position
      */
-    public @NotNull Region getContainingRegion(@NotNull final Instance instance, @NotNull final Pos position) {
+    public @NotNull Region getContainingRegion(@NotNull final Instance instance, @NotNull final Point position) {
         return new Region(instance, position.add(offsetX, offsetY, offsetZ), position.add(offsetX + width, offsetY + height, offsetZ + length));
     }
 
@@ -173,17 +171,15 @@ public class Schematic implements Block.Setter {
     }
 
     /**
-     * Applies this schematic to the given {@link Block.Setter} at the given {@link Pos}. The schematic can be flipped along the X, Y, or Z axis using the {@code flipX}, {@code flipY}, and {@code flipZ} parameters.
+     * Applies this schematic to the given {@link Block.Setter} at the given {@link Point}. The schematic can be flipped along the X, Y, or Z axis using the {@code flipX}, {@code flipY}, and {@code flipZ} parameters.
      *
-     * @param position the {@link Pos} to apply this schematic at within the given {@link Block.Setter}. Acts like an offset.
+     * @param position the {@link Point} to apply this schematic at within the given {@link Block.Setter}. Acts like an offset.
      * @param flipX    whether to flip the schematic along the X axis
      * @param flipY    whether to flip the schematic along the Y axis
      * @param flipZ    whether to flip the schematic along the Z axis
      * @param setter   the {@link Block.Setter} to apply this schematic to
      */
-    public void apply(@NotNull final Pos position, final boolean flipX, final boolean flipY, final boolean flipZ, @NotNull final Block.Setter setter) {
-        final Pos lower = position.add(offsetX, offsetY, offsetZ);
-
+    public void apply(@NotNull final Point position, final boolean flipX, final boolean flipY, final boolean flipZ, @NotNull final Block.Setter setter) {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 for (int z = 0; z < length; z++) {
@@ -192,9 +188,9 @@ public class Schematic implements Block.Setter {
                     final int relativeBlockY = flipY ? height - y - 1 : y;
                     final int relativeBlockZ = flipZ ? length - z - 1 : z;
 
-                    final int absoluteX = lower.blockX() + x;
-                    final int absoluteY = lower.blockY() + y;
-                    final int absoluteZ = lower.blockZ() + z;
+                    final int absoluteX = position.blockX() + x;
+                    final int absoluteY = position.blockY() + y;
+                    final int absoluteZ = position.blockZ() + z;
 
                     final Block block = getBlock(relativeBlockX, relativeBlockY, relativeBlockZ);
 
@@ -227,16 +223,16 @@ public class Schematic implements Block.Setter {
 
     /**
      * @param unit the {@link GenerationUnit} to fork
-     * @param position the {@link Pos} to place the schematic at. Offsets will be applied to this position to get the lower corner.
+     * @param position the {@link Point} to place the schematic at. Offsets will be applied to this position to get the lower corner.
      * @param flipX   whether to flip the schematic along the X axis
      * @param flipY  whether to flip the schematic along the Y axis
      * @param flipZ whether to flip the schematic along the Z axis
      */
-    public void fork(@NotNull GenerationUnit unit, @NotNull Pos position, boolean flipX, boolean flipY, boolean flipZ) {
+    public void fork(@NotNull GenerationUnit unit, @NotNull Point position, boolean flipX, boolean flipY, boolean flipZ) {
         if (locked) throw new IllegalStateException("Cannot fork a locked schematic.");
 
-        final Pos start = position.sub(offsetX, offsetY, offsetZ);
-        final Pos end = start.add(width, height, length);
+        final Point start = position.sub(offsetX, offsetY, offsetZ);
+        final Point end = start.add(width, height, length);
 
         UnitModifier forkModifier = unit.fork(start, end).modifier();
 
@@ -244,10 +240,10 @@ public class Schematic implements Block.Setter {
     }
 
     /**
-     * @param position the {@link Pos} of the block to set
+     * @param position the {@link Point} of the block to set
      * @param block the {@link Block} to set
      */
-    public void setBlock(@NotNull Pos position, @NotNull Block block) {
+    public void setBlock(@NotNull Point position, @NotNull Block block) {
         setBlock(position.blockX(), position.blockY(), position.blockZ(), block);
     }
 
@@ -266,10 +262,10 @@ public class Schematic implements Block.Setter {
     }
 
     /**
-     * @param position the {@link Pos} to place the block at
+     * @param position the {@link Point} to place the block at
      * @param stateId  the state id of the block to place.
      */
-    public void setBlock(@NotNull Pos position, short stateId) {
+    public void setBlock(@NotNull Point position, short stateId) {
         setBlock(position.blockX(), position.blockY(), position.blockZ(), stateId);
     }
 
@@ -295,7 +291,7 @@ public class Schematic implements Block.Setter {
     }
 
     /**
-     * Gets the offset in the x-axis used when {@link #build(Instance, Pos)} or {@link #apply(Pos, boolean, boolean, boolean, Block.Setter)} are called.
+     * Gets the offset in the x-axis used when {@link #build(Instance, Point)} or {@link #apply(Point, boolean, boolean, boolean, Block.Setter)} are called.
      *
      * @return the x offset
      */
@@ -304,7 +300,7 @@ public class Schematic implements Block.Setter {
     }
 
     /**
-     * Gets the offset in the y-axis used when {@link #build(Instance, Pos)} or {@link #apply(Pos, boolean, boolean, boolean, Block.Setter)} are called.
+     * Gets the offset in the y-axis used when {@link #build(Instance, Point)} or {@link #apply(Point, boolean, boolean, boolean, Block.Setter)} are called.
      *
      * @return the y offset
      */
@@ -313,7 +309,7 @@ public class Schematic implements Block.Setter {
     }
 
     /**
-     * Gets the offset in the z-axis used when {@link #build(Instance, Pos)} or {@link #apply(Pos, boolean, boolean, boolean, Block.Setter)} are called.
+     * Gets the offset in the z-axis used when {@link #build(Instance, Point)} or {@link #apply(Point, boolean, boolean, boolean, Block.Setter)} are called.
      *
      * @return the z offset
      */
@@ -371,15 +367,15 @@ public class Schematic implements Block.Setter {
      */
     @Deprecated
     public void apply(@NotNull Block.Setter setter) {
-        apply(Pos.ZERO, false, false, false, setter);
+        apply(Vec.ZERO, false, false, false, setter);
     }
 
     /**
      * @param instance the {@link Instance} to check
-     * @param position the {@link Pos} to check
+     * @param position the {@link Point} to check
      * @return {@code true} if the given position is within the bounds of the given instance, {@code false} otherwise
      */
-    public boolean isPlaceable(@NotNull final Instance instance, @NotNull final Pos position) {
+    public boolean isPlaceable(@NotNull final Instance instance, @NotNull final Point position) {
         return isPlaceable(getContainingRegion(instance, position));
     }
 }
