@@ -5,3 +5,4 @@
  */
 
 rootProject.name = "Scaffolding"
+include("scaffolding-editor")
