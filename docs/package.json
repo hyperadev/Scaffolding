@@ -1,0 +1,16 @@
+{
+  "name": "scaffolding-docs",
+  "version": "1.0.0",
+  "description": "Schematic library for Minestom",
+  "repository": "https://github.com/CrystalGamesMC/Scaffolding",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "vitepress": "^0.22.4"
+  },
+  "scripts": {
+    "docs:dev": "vitepress dev content",
+    "docs:build": "vitepress build content",
+    "docs:serve": "vitepress serve content"
+  }
+}
