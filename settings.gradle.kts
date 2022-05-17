@@ -5,4 +5,5 @@
  */
 
 rootProject.name = "Scaffolding"
-include("scaffolding-editor")
+include(":scaffolding-core")
+include(":scaffolding-editor")
