@@ -26,12 +26,25 @@ public final class Scaffolding {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @param nbtTag The NBT tag to parse
+     * @param schematic The {@link Schematic} to load the data into
+     * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
+     * @throws NBTException if the NBT tag is invalid
+     */
     public static CompletableFuture<Schematic> fromNbt(@NotNull NBTCompound nbtTag, @NotNull Schematic schematic) throws NBTException {
         if (nbtTag.contains("Blocks")) return MC_EDIT_SCHEMATIC_READER.read(nbtTag, schematic);
         else if (nbtTag.contains("Palette")) return SPONGE_SCHEMATIC_READER.read(nbtTag, schematic);
         else throw new IllegalArgumentException("Unknown schematic type.");
     }
 
+    /**
+     * @param inputStream the {@link InputStream} to read from
+     * @param schematic the {@link Schematic} to load the data into
+     * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
+     * @throws IOException if the input stream is invalid
+     * @throws NBTException if the NBT tag is invalid
+     */
     public static CompletableFuture<Schematic> fromStream(@NotNull InputStream inputStream, @NotNull Schematic schematic) throws IOException, NBTException {
         final NBTReader reader = new NBTReader(inputStream, CompressedProcesser.GZIP);
         final NBTCompound nbtTag = (NBTCompound) reader.read();
@@ -39,6 +52,13 @@ public final class Scaffolding {
         return fromNbt(nbtTag, schematic);
     }
 
+    /**
+     * @param file the {@link File} to read from
+     * @param schematic the {@link Schematic} to load the data into
+     * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
+     * @throws IOException if the file is invalid
+     * @throws NBTException if the NBT tag is invalid
+     */
     public static CompletableFuture<Schematic> fromFile(@NotNull File file, @NotNull Schematic schematic) throws IOException, NBTException {
         if (!file.exists()) throw new FileNotFoundException("Invalid Schematic: File does not exist");
         return fromStream(new FileInputStream(file), schematic);
@@ -82,14 +102,34 @@ public final class Scaffolding {
         return fromFile(file, new Schematic());
     }
 
+    /**
+     * @param nbtTag The NBT tag to parse
+     * @param schematic The {@link Schematic} to load the data into
+     * @return the parsed {@link Schematic}
+     * @throws NBTException if the NBT tag is invalid
+     */
     public static @NotNull Schematic fromNbtSync(@NotNull NBTCompound nbtTag, @NotNull Schematic schematic) throws NBTException {
         return fromNbt(nbtTag, schematic).join();
     }
 
+    /**
+     * @param inputStream the {@link InputStream} to read from
+     * @param schematic the {@link Schematic} to load the data into
+     * @return the parsed {@link Schematic}
+     * @throws IOException if the input stream is invalid
+     * @throws NBTException if the NBT tag is invalid
+     */
     public static @NotNull Schematic fromStreamSync(@NotNull InputStream inputStream, @NotNull Schematic schematic) throws IOException, NBTException {
         return fromStream(inputStream, schematic).join();
     }
 
+    /**
+     * @param file the {@link File} to read from
+     * @param schematic the {@link Schematic} to load the data into
+     * @return the parsed {@link Schematic}
+     * @throws IOException if the file is invalid
+     * @throws NBTException if the NBT tag is invalid
+     */
     public static @NotNull Schematic fromFileSync(@NotNull File file, @NotNull Schematic schematic) throws IOException, NBTException {
         return fromFile(file, schematic).join();
     }
