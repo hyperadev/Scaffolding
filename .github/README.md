@@ -9,7 +9,7 @@ Scaffolding is a library for Minestom that allows you to load and place schemati
 
 ### Repository
 
-As with Minestom, Scaffolding uses JitPack to distrubute releases.
+As with Minestom, Scaffolding uses JitPack to distribute releases.
 
 #### Gradle (Kotlin)
 Add JitPack as a repository to your ```build.gradle.kts``` file.

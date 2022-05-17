@@ -9,7 +9,7 @@ Scaffolding is intended to be used as a library for the Minestom framework. You 
 
 ## Repository
 
-As with Minestom, Scaffolding uses JitPack to distrubute releases.
+As with Minestom, Scaffolding uses JitPack to distribute releases.
 
 ### Gradle (Kotlin)
 Add JitPack as a repository to your ```build.gradle.kts``` file.
