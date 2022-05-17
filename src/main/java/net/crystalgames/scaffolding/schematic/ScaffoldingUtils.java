@@ -24,6 +24,7 @@ public final class ScaffoldingUtils {
     // TODO: Replace with a collection that doesn't require autoboxing
     private static final HashMap<Integer, Short> LEGACY_LOOKUP = new HashMap<>();
 
+    // This is awful, but it'll work for now. TODO: rewrite
     static {
         try {
             // Load state IDS from lookup table

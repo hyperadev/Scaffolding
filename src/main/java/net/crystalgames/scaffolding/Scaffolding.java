@@ -27,7 +27,7 @@ public final class Scaffolding {
     }
 
     /**
-     * @param nbtTag The NBT tag to parse
+     * @param nbtTag    The NBT tag to parse
      * @param schematic The {@link Schematic} to load the data into
      * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
      * @throws NBTException if the NBT tag is invalid
@@ -40,9 +40,9 @@ public final class Scaffolding {
 
     /**
      * @param inputStream the {@link InputStream} to read from
-     * @param schematic the {@link Schematic} to load the data into
+     * @param schematic   the {@link Schematic} to load the data into
      * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
-     * @throws IOException if the input stream is invalid
+     * @throws IOException  if the input stream is invalid
      * @throws NBTException if the NBT tag is invalid
      */
     public static CompletableFuture<Schematic> fromStream(@NotNull InputStream inputStream, @NotNull Schematic schematic) throws IOException, NBTException {
@@ -53,10 +53,10 @@ public final class Scaffolding {
     }
 
     /**
-     * @param file the {@link File} to read from
+     * @param file      the {@link File} to read from
      * @param schematic the {@link Schematic} to load the data into
      * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
-     * @throws IOException if the file is invalid
+     * @throws IOException  if the file is invalid
      * @throws NBTException if the NBT tag is invalid
      */
     public static CompletableFuture<Schematic> fromFile(@NotNull File file, @NotNull Schematic schematic) throws IOException, NBTException {
@@ -103,7 +103,7 @@ public final class Scaffolding {
     }
 
     /**
-     * @param nbtTag The NBT tag to parse
+     * @param nbtTag    The NBT tag to parse
      * @param schematic The {@link Schematic} to load the data into
      * @return the parsed {@link Schematic}
      * @throws NBTException if the NBT tag is invalid
@@ -114,9 +114,9 @@ public final class Scaffolding {
 
     /**
      * @param inputStream the {@link InputStream} to read from
-     * @param schematic the {@link Schematic} to load the data into
+     * @param schematic   the {@link Schematic} to load the data into
      * @return the parsed {@link Schematic}
-     * @throws IOException if the input stream is invalid
+     * @throws IOException  if the input stream is invalid
      * @throws NBTException if the NBT tag is invalid
      */
     public static @NotNull Schematic fromStreamSync(@NotNull InputStream inputStream, @NotNull Schematic schematic) throws IOException, NBTException {
@@ -124,10 +124,10 @@ public final class Scaffolding {
     }
 
     /**
-     * @param file the {@link File} to read from
+     * @param file      the {@link File} to read from
      * @param schematic the {@link Schematic} to load the data into
      * @return the parsed {@link Schematic}
-     * @throws IOException if the file is invalid
+     * @throws IOException  if the file is invalid
      * @throws NBTException if the NBT tag is invalid
      */
     public static @NotNull Schematic fromFileSync(@NotNull File file, @NotNull Schematic schematic) throws IOException, NBTException {
@@ -139,7 +139,7 @@ public final class Scaffolding {
      *
      * @param nbtTag the {@link NBTCompound} to read from
      * @return the parsed {@link Schematic}
-     * @throws NBTException if the NBT tag is invalid
+     * @throws NBTException             if the NBT tag is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
      */
     public static @NotNull Schematic fromNbtSync(@NotNull final NBTCompound nbtTag) throws NBTException, IllegalArgumentException {
@@ -149,8 +149,8 @@ public final class Scaffolding {
     /**
      * @param inputStream The {@link InputStream} to read from
      * @return The parsed {@link Schematic}
-     * @throws IOException            if the input stream is invalid
-     * @throws NBTException           if the schematic is invalid
+     * @throws IOException              if the input stream is invalid
+     * @throws NBTException             if the schematic is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
      */
     public static @NotNull Schematic fromStreamSync(@NotNull final InputStream inputStream) throws IOException, NBTException, IllegalArgumentException {
@@ -160,8 +160,8 @@ public final class Scaffolding {
     /**
      * @param file The {@link File} to read from
      * @return The parsed {@link Schematic}
-     * @throws IOException             if the file is invalid
-     * @throws NBTException            if the schematic is invalid
+     * @throws IOException              if the file is invalid
+     * @throws NBTException             if the schematic is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
      */
     public static @NotNull Schematic fromFileSync(@NotNull final File file) throws IOException, NBTException, IllegalArgumentException {

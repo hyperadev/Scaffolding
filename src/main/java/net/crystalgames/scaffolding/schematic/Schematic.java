@@ -88,7 +88,7 @@ public class Schematic implements Block.Setter {
     /**
      * Sets the size of this schematic. {@code area} will be updated accordingly.
      *
-     * @param width new width
+     * @param width  new width
      * @param height new height
      * @param length new length
      */
@@ -182,6 +182,8 @@ public class Schematic implements Block.Setter {
      * @param setter   the {@link Block.Setter} to apply this schematic to
      */
     public void apply(@NotNull final Point position, final boolean flipX, final boolean flipY, final boolean flipZ, @NotNull final Block.Setter setter) {
+        if(locked) throw new IllegalStateException("Cannot apply a locked schematic.");
+
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 for (int z = 0; z < length; z++) {
@@ -208,7 +210,8 @@ public class Schematic implements Block.Setter {
      * @param z block z coordinate
      * @return the block at the given coordinates
      */
-    @Nullable public Block getBlock(final int x, final int y, final int z) {
+    @Nullable
+    public Block getBlock(final int x, final int y, final int z) {
         short stateId = getStateId(x, y, z);
         return Block.fromStateId(stateId);
     }
@@ -224,11 +227,11 @@ public class Schematic implements Block.Setter {
     }
 
     /**
-     * @param unit the {@link GenerationUnit} to fork
+     * @param unit     the {@link GenerationUnit} to fork
      * @param position the {@link Point} to place the schematic at. Offsets will be applied to this position to get the lower corner.
-     * @param flipX   whether to flip the schematic along the X axis
-     * @param flipY  whether to flip the schematic along the Y axis
-     * @param flipZ whether to flip the schematic along the Z axis
+     * @param flipX    whether to flip the schematic along the X axis
+     * @param flipY    whether to flip the schematic along the Y axis
+     * @param flipZ    whether to flip the schematic along the Z axis
      */
     public void fork(@NotNull GenerationUnit unit, @NotNull Point position, boolean flipX, boolean flipY, boolean flipZ) {
         if (locked) throw new IllegalStateException("Cannot fork a locked schematic.");
@@ -243,7 +246,7 @@ public class Schematic implements Block.Setter {
 
     /**
      * @param position the {@link Point} of the block to set
-     * @param block the {@link Block} to set
+     * @param block    the {@link Block} to set
      */
     public void setBlock(@NotNull Point position, @NotNull Block block) {
         setBlock(position.blockX(), position.blockY(), position.blockZ(), block);
@@ -254,9 +257,9 @@ public class Schematic implements Block.Setter {
     }
 
     /**
-     * @param x the X coordinate
-     * @param y the Y coordinate
-     * @param z the Z coordinate
+     * @param x       the X coordinate
+     * @param y       the Y coordinate
+     * @param z       the Z coordinate
      * @param stateId the state ID
      */
     public void setBlock(int x, int y, int z, short stateId) {
@@ -378,7 +381,7 @@ public class Schematic implements Block.Setter {
      * @return {@code true} if the given position is within the bounds of the given instance, {@code false} otherwise. If either the instance or the position is null, false is returned.
      */
     public boolean isPlaceable(@Nullable final Instance instance, @Nullable final Point position) {
-        if(instance == null || position == null) return false;
+        if (instance == null || position == null) return false;
 
         return isPlaceable(getContainingRegion(instance, position));
     }
