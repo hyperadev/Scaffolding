@@ -20,8 +20,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class Clipboard {
 
-    private final Component FIRST_POINT_COMPONENT = Component.text("First point", NamedTextColor.GOLD);
-    private final Component SECOND_POINT_COMPONENT = Component.text("Second point", NamedTextColor.AQUA);
+    public static final Component FIRST_POINT_COMPONENT = Component.text("First point", NamedTextColor.GOLD);
+    public static final Component SECOND_POINT_COMPONENT = Component.text("Second point", NamedTextColor.AQUA);
 
     private final Player player;
     private final Task drawParticlesTask;

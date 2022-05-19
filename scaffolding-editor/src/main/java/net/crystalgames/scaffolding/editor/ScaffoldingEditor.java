@@ -4,6 +4,8 @@ import net.crystalgames.scaffolding.editor.commands.CopyCommand;
 import net.crystalgames.scaffolding.editor.commands.LoadCommand;
 import net.crystalgames.scaffolding.editor.commands.PasteCommand;
 import net.crystalgames.scaffolding.editor.features.SelectionFeature;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.coordinate.Pos;
@@ -16,6 +18,8 @@ import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.extras.lan.OpenToLAN;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
 import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.world.DimensionType;
 import org.slf4j.Logger;
@@ -59,7 +63,22 @@ public class ScaffoldingEditor {
             event.setSpawningInstance(instance);
         });
         globalEventHandler.addListener(PlayerDisconnectEvent.class, event -> clipboards.remove(event.getPlayer()).cleanup());
-        globalEventHandler.addListener(PlayerSpawnEvent.class, event -> event.getPlayer().setGameMode(GameMode.CREATIVE));
+        globalEventHandler.addListener(PlayerSpawnEvent.class, event -> {
+            Player player = event.getPlayer();
+
+            ItemStack wand = ItemStack.builder(Material.WOODEN_AXE)
+                    .amount(1)
+                    .displayName(Component.text("Selection Tool", NamedTextColor.WHITE))
+                    .lore(
+                            Component.text("Use this to edit the world.", NamedTextColor.GRAY), Component.empty(),
+                            Clipboard.FIRST_POINT_COMPONENT.append(Component.text(" - left click", NamedTextColor.GRAY)),
+                            Clipboard.SECOND_POINT_COMPONENT.append(Component.text(" - right click", NamedTextColor.GRAY))
+                    )
+                    .build();
+            player.getInventory().addItemStack(wand);
+
+            player.setGameMode(GameMode.CREATIVE);
+        });
 
         new SelectionFeature().hook(instance.eventNode());
 
