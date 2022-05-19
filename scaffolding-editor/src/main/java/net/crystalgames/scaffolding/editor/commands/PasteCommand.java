@@ -14,7 +14,7 @@ public class PasteCommand extends Command {
         super("paste");
 
         setDefaultExecutor((sender, context) -> {
-            if((sender instanceof Player player)) {
+            if ((sender instanceof Player player)) {
                 Clipboard clipboard = ScaffoldingEditor.getClipboard(player);
                 Schematic schematic = clipboard.getSchematic();
 
@@ -31,7 +31,7 @@ public class PasteCommand extends Command {
                     return;
                 }
 
-                if(!schematic.isPlaceable(instance, placementPosition)) {
+                if (!schematic.isPlaceable(instance, placementPosition)) {
                     player.sendMessage("Schematic would not fit within the world boundaries at this position");
                     return;
                 }

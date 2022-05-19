@@ -17,7 +17,6 @@ import java.util.concurrent.CompletableFuture;
 /**
  * A parsed schematic.
  */
-@SuppressWarnings("unused")
 public class Schematic implements Block.Setter {
 
     private short[] blocks;
@@ -182,7 +181,7 @@ public class Schematic implements Block.Setter {
      * @param setter   the {@link Block.Setter} to apply this schematic to
      */
     public void apply(@NotNull final Point position, final boolean flipX, final boolean flipY, final boolean flipZ, @NotNull final Block.Setter setter) {
-        if(locked) throw new IllegalStateException("Cannot apply a locked schematic.");
+        if (locked) throw new IllegalStateException("Cannot apply a locked schematic.");
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {

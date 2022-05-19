@@ -13,9 +13,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
 /**
- * Represents a rectangle 3 dimensional region of blocks withing an {@link Instance}.
+ * Represents a rectangle 3 dimensional region of blocks within an {@link Instance}.
  */
-@SuppressWarnings("unused")
 public final class Region {
 
     private final Instance instance;

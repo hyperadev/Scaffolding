@@ -1,12 +1,9 @@
 package net.crystalgames.scaffolding.editor;
 
-import me.alexpanov.net.FreePortFinder;
-import net.crystalgames.scaffolding.Scaffolding;
 import net.crystalgames.scaffolding.editor.commands.CopyCommand;
 import net.crystalgames.scaffolding.editor.commands.LoadCommand;
 import net.crystalgames.scaffolding.editor.commands.PasteCommand;
 import net.crystalgames.scaffolding.editor.features.SelectionFeature;
-import net.crystalgames.scaffolding.schematic.Schematic;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.coordinate.Pos;
@@ -21,11 +18,9 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.world.DimensionType;
-import org.jglrxavpok.hephaistos.nbt.NBTException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,9 +63,7 @@ public class ScaffoldingEditor {
 
         new SelectionFeature().hook(instance.eventNode());
 
-        int port = FreePortFinder.findFreeLocalPort(25565 + 1);
-        LOGGER.info("Starting server on port {}", port);
-        server.start("0.0.0.0", port);
+        server.start("0.0.0.0", 25565);
         OpenToLAN.open();
     }
 
