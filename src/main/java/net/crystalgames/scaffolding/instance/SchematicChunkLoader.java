@@ -64,7 +64,7 @@ public class SchematicChunkLoader implements IChunkLoader {
     }
 
     @Override
-    public @NotNull CompletableFuture<@Nullable Chunk> loadChunk(@NotNull Instance instance, int chunkX, int chunkZ) {
+    public synchronized @NotNull CompletableFuture<@Nullable Chunk> loadChunk(@NotNull Instance instance, int chunkX, int chunkZ) {
         long index = ChunkUtils.getChunkIndex(chunkX, chunkZ);
         ChunkBatch batch = batches.get(index);
 
@@ -139,5 +139,4 @@ public class SchematicChunkLoader implements IChunkLoader {
             return new SchematicChunkLoader(handler, List.copyOf(schematics), xOffset, yOffset, zOffset);
         }
     }
-
 }
