@@ -1,9 +1,10 @@
 package net.crystalgames.scaffolding.region;
 
+import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 
-public record Region(Instance instance, Pos lower, Pos upper) {
+public record Region(Instance instance, Point lower, Point upper) {
 
     public int sizeX() {
         return (upper.blockX() - lower.blockX()) + 1;
