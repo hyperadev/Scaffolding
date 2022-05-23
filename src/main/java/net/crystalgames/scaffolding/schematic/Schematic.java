@@ -1,6 +1,7 @@
 package net.crystalgames.scaffolding.schematic;
 
 import net.crystalgames.scaffolding.region.Region;
+import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
@@ -17,16 +18,16 @@ import java.util.concurrent.CompletableFuture;
 
 public interface Schematic {
 
-    default void read(InputStream inputStream) throws IOException, NBTException {
+    default void read(@NotNull InputStream inputStream) throws IOException, NBTException {
         NBTReader reader = new NBTReader(inputStream, CompressedProcesser.GZIP);
         read((NBTCompound) reader.readNamed().getSecond());
         reader.close();
         inputStream.close();
     }
-    void read(NBTCompound nbtTag) throws NBTException;
+    void read(@NotNull NBTCompound nbtTag) throws NBTException;
+    void write(@NotNull OutputStream outputStream, @NotNull Region region) throws IOException;
 
-    void write(OutputStream outputStream, Region region) throws IOException;
-    CompletableFuture<Region> build(Instance instance, Pos position);
+    CompletableFuture<Region> build(Instance instance, Point position);
 
     short getWidth();
     short getHeight();

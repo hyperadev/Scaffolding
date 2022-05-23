@@ -2,6 +2,7 @@ package net.crystalgames.scaffolding.schematic.impl;
 
 import net.crystalgames.scaffolding.region.Region;
 import net.crystalgames.scaffolding.schematic.Schematic;
+import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.AbsoluteBlockBatch;
@@ -34,7 +35,7 @@ public class MCEditSchematic implements Schematic {
     private int offsetZ;
 
     @Override
-    public void read(NBTCompound nbtTag) throws NBTException {
+    public void read(@NotNull NBTCompound nbtTag) throws NBTException {
         if (!nbtTag.containsKey("Blocks")) throw new NBTException("Invalid Schematic: No Blocks");
 
         readSizes(nbtTag);
@@ -113,12 +114,12 @@ public class MCEditSchematic implements Schematic {
     }
 
     @Override
-    public void write(OutputStream outputStream, Region region) {
+    public void write(@NotNull OutputStream outputStream, @NotNull Region region) {
         // TODO: Complete
     }
 
     @Override
-    public CompletableFuture<Region> build(Instance instance, Pos position) {
+    public CompletableFuture<Region> build(Instance instance, Point position) {
         if (!read) throw new IllegalStateException("Schematic not read");
         CompletableFuture<Region> future = new CompletableFuture<>();
         CompletableFuture.runAsync(() -> {

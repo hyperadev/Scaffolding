@@ -12,8 +12,10 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.utils.chunk.ChunkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import space.vectrix.flare.fastutil.Long2ObjectSyncMap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -23,11 +25,11 @@ import java.util.function.Function;
 public class SchematicChunkLoader implements IChunkLoader {
 
     private final @NotNull Function<@NotNull Chunk, @NotNull CompletableFuture<Void>> saveHandler;
-    private final Long2ObjectMap<ChunkBatch> batches = new Long2ObjectOpenHashMap<>();
+    private final Long2ObjectMap<ChunkBatch> batches = Long2ObjectSyncMap.hashmap();
 
     private SchematicChunkLoader(
             @NotNull Function<@NotNull Chunk, @NotNull CompletableFuture<Void>> saveHandler,
-            @NotNull List<Schematic> schematics,
+            @NotNull Collection<Schematic> schematics,
             int offsetX,
             int offsetY,
             int offsetZ
@@ -137,5 +139,4 @@ public class SchematicChunkLoader implements IChunkLoader {
             return new SchematicChunkLoader(handler, List.copyOf(schematics), xOffset, yOffset, zOffset);
         }
     }
-
 }
