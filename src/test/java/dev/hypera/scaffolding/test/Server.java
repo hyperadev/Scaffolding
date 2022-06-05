@@ -1,10 +1,33 @@
-package dev.sllcoding.scaffolding.test;
+/*
+ * Scaffolding - Schematic library for Minestom
+ *  Copyright (c) 2022 SLLCoding <luisjk266@gmail.com>
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the “Software”), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
+ */
+package dev.hypera.scaffolding.test;
 
-import dev.sllcoding.scaffolding.test.commands.TestCommand;
-import dev.sllcoding.scaffolding.test.generator.Generator;
-import net.crystalgames.scaffolding.Scaffolding;
-import net.crystalgames.scaffolding.instance.SchematicChunkLoader;
-import net.crystalgames.scaffolding.schematic.Schematic;
+import dev.hypera.scaffolding.test.commands.TestCommand;
+import dev.hypera.scaffolding.test.generator.Generator;
+import java.nio.file.Path;
+import dev.hypera.scaffolding.Scaffolding;
+import dev.hypera.scaffolding.instance.SchematicChunkLoader;
+import dev.hypera.scaffolding.schematic.Schematic;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.GameMode;
@@ -15,7 +38,6 @@ import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.world.DimensionType;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 
-import java.io.File;
 import java.io.IOException;
 
 public class Server {
@@ -32,7 +54,7 @@ public class Server {
         instance.setChunkGenerator(new Generator());
         // Load schematic for schematic chunk loader
         try {
-            Schematic schematic = Scaffolding.fromFile(new File("schematic.schematic"));
+            Schematic schematic = Scaffolding.fromPath(Path.of("schematic.schematic"));
             SchematicChunkLoader chunkLoader = SchematicChunkLoader.builder()
                     .addSchematic(schematic)
                     .build();

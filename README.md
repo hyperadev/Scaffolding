@@ -29,19 +29,17 @@ schematic.write(new FileOutputStream("schematics/my_schematic.schematic"), regio
 
 ## Build Tools
 
-/!\ Repository is currently down, cloning the repository will be required until fixed.
-
 ### Repository
 ```xml
 <repository>
-    <id>crystalgames</id>
-    <url>https://repo.crystalgames.net/snapshots/</url>
+    <id>hypera-snapshots</id>
+    <url>https://repo.hypera.dev/snapshots/</url>
 </repository>
 ```
 ### Dependency
 ```xml
 <dependency>
-    <groupId>net.crystalgames</groupId>
+    <groupId>dev.hypera</groupId>
     <artifactId>Scaffolding</artifactId>
     <version>0.1.1-SNAPSHOT</version>
 </dependency>
