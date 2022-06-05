@@ -2,9 +2,10 @@ package dev.sllcoding.scaffolding.test;
 
 import dev.sllcoding.scaffolding.test.commands.TestCommand;
 import dev.sllcoding.scaffolding.test.generator.Generator;
-import net.crystalgames.scaffolding.Scaffolding;
-import net.crystalgames.scaffolding.instance.SchematicChunkLoader;
-import net.crystalgames.scaffolding.schematic.Schematic;
+import java.nio.file.Path;
+import dev.hypera.scaffolding.Scaffolding;
+import dev.hypera.scaffolding.instance.SchematicChunkLoader;
+import dev.hypera.scaffolding.schematic.Schematic;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.GameMode;
@@ -15,7 +16,6 @@ import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.world.DimensionType;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 
-import java.io.File;
 import java.io.IOException;
 
 public class Server {
@@ -32,7 +32,7 @@ public class Server {
         instance.setChunkGenerator(new Generator());
         // Load schematic for schematic chunk loader
         try {
-            Schematic schematic = Scaffolding.fromFile(new File("schematic.schematic"));
+            Schematic schematic = Scaffolding.fromPath(Path.of("schematic.schematic"));
             SchematicChunkLoader chunkLoader = SchematicChunkLoader.builder()
                     .addSchematic(schematic)
                     .build();

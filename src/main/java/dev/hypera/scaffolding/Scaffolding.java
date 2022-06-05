@@ -1,9 +1,11 @@
-package net.crystalgames.scaffolding;
+package dev.hypera.scaffolding;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import kotlin.Pair;
-import net.crystalgames.scaffolding.schematic.Schematic;
-import net.crystalgames.scaffolding.schematic.impl.MCEditSchematic;
-import net.crystalgames.scaffolding.schematic.impl.SpongeSchematic;
+import dev.hypera.scaffolding.schematic.Schematic;
+import dev.hypera.scaffolding.schematic.impl.MCEditSchematic;
+import dev.hypera.scaffolding.schematic.impl.SpongeSchematic;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.nbt.*;
@@ -30,6 +32,18 @@ public class Scaffolding {
 
         if (schematic != null) schematic.read(nbtTag);
         return schematic;
+    }
+
+    /**
+     * Automatically detects the type of schematic and parses the file
+     * @param path Schematic path
+     * @return parsed schematic
+     * @throws IOException if the file is invalid
+     * @throws NBTException if the schematic is invalid
+     */
+    public static @Nullable Schematic fromPath(@NotNull Path path) throws IOException, NBTException {
+        if (!Files.exists(path)) throw new FileNotFoundException("Invalid Schematic: File does not exist");
+        return fromStream(Files.newInputStream(path));
     }
 
     /**

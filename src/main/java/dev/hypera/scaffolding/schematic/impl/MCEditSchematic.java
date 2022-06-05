@@ -1,7 +1,7 @@
-package net.crystalgames.scaffolding.schematic.impl;
+package dev.hypera.scaffolding.schematic.impl;
 
-import net.crystalgames.scaffolding.region.Region;
-import net.crystalgames.scaffolding.schematic.Schematic;
+import dev.hypera.scaffolding.schematic.Schematic;
+import dev.hypera.scaffolding.region.Region;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
@@ -182,4 +182,5 @@ public class MCEditSchematic implements Schematic {
             }
         }
     }
+
 }

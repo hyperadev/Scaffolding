@@ -1,8 +1,7 @@
-package net.crystalgames.scaffolding.schematic;
+package dev.hypera.scaffolding.schematic;
 
-import net.crystalgames.scaffolding.region.Region;
+import dev.hypera.scaffolding.region.Region;
 import net.minestom.server.coordinate.Point;
-import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
@@ -42,4 +41,5 @@ public interface Schematic {
      * @param setter the block setter
      */
     void apply(@NotNull Block.Setter setter);
+
 }

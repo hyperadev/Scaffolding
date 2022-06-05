@@ -1,7 +1,7 @@
-package net.crystalgames.scaffolding.schematic.impl;
+package dev.hypera.scaffolding.schematic.impl;
 
-import net.crystalgames.scaffolding.region.Region;
-import net.crystalgames.scaffolding.schematic.Schematic;
+import dev.hypera.scaffolding.schematic.Schematic;
+import dev.hypera.scaffolding.region.Region;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
@@ -218,7 +218,7 @@ public class SpongeSchematic implements Schematic {
     }
 
     @Override
-    public void apply(Block.@NotNull Setter setter) {
+    public void apply(@NotNull Block.Setter setter) {
         for (Region.Block block : regionBlocks) {
             Pos pos = block.position();
             Block minestomBlock = Block.fromStateId(block.stateId());

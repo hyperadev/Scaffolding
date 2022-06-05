@@ -1,8 +1,7 @@
-package net.crystalgames.scaffolding.instance;
+package dev.hypera.scaffolding.instance;
 
+import dev.hypera.scaffolding.schematic.Schematic;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import net.crystalgames.scaffolding.schematic.Schematic;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.DynamicChunk;
 import net.minestom.server.instance.IChunkLoader;
@@ -93,8 +92,7 @@ public class SchematicChunkLoader implements IChunkLoader {
         private int yOffset;
         private int zOffset;
 
-        private Builder() {
-        }
+        private Builder() {}
 
         /**
          * Adds a schematic to this chunk loader.
@@ -138,5 +136,7 @@ public class SchematicChunkLoader implements IChunkLoader {
         public @NotNull SchematicChunkLoader build() {
             return new SchematicChunkLoader(handler, List.copyOf(schematics), xOffset, yOffset, zOffset);
         }
+
     }
+
 }

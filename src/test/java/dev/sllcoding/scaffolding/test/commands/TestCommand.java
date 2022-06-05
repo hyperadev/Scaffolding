@@ -1,13 +1,12 @@
 package dev.sllcoding.scaffolding.test.commands;
 
-import net.crystalgames.scaffolding.Scaffolding;
-import net.crystalgames.scaffolding.schematic.Schematic;
+import java.nio.file.Path;
+import dev.hypera.scaffolding.Scaffolding;
+import dev.hypera.scaffolding.schematic.Schematic;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
-
-import java.io.File;
 
 public class TestCommand extends Command {
 
@@ -16,7 +15,7 @@ public class TestCommand extends Command {
 
         setDefaultExecutor((sender, context) -> {
             try {
-                Schematic schematic = Scaffolding.fromFile(new File("schematic.schematic"));
+                Schematic schematic = Scaffolding.fromPath(Path.of("schematic.schematic"));
 
                 Player player = (Player) sender;
                 Instance instance = player.getInstance();

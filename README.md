@@ -34,14 +34,14 @@ schematic.write(new FileOutputStream("schematics/my_schematic.schematic"), regio
 ### Repository
 ```xml
 <repository>
-    <id>crystalgames</id>
-    <url>https://repo.crystalgames.net/snapshots/</url>
+    <id>hypera-snapshots</id>
+    <url>https://repo.hypera.dev/snapshots/</url>
 </repository>
 ```
 ### Dependency
 ```xml
 <dependency>
-    <groupId>net.crystalgames</groupId>
+    <groupId>dev.hypera</groupId>
     <artifactId>Scaffolding</artifactId>
     <version>0.1.1-SNAPSHOT</version>
 </dependency>
