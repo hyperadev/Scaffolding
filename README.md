@@ -29,8 +29,6 @@ schematic.write(new FileOutputStream("schematics/my_schematic.schematic"), regio
 
 ## Build Tools
 
-/!\ Repository is currently down, cloning the repository will be required until fixed.
-
 ### Repository
 ```xml
 <repository>
