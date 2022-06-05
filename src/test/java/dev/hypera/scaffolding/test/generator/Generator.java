@@ -20,34 +20,30 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-package dev.sllcoding.scaffolding.test.commands;
+package dev.hypera.scaffolding.test.generator;
 
-import java.nio.file.Path;
-import dev.hypera.scaffolding.Scaffolding;
-import dev.hypera.scaffolding.schematic.Schematic;
-import net.minestom.server.command.builder.Command;
-import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Player;
-import net.minestom.server.instance.Instance;
+import net.minestom.server.instance.ChunkGenerator;
+import net.minestom.server.instance.ChunkPopulator;
+import net.minestom.server.instance.batch.ChunkBatch;
+import net.minestom.server.instance.block.Block;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class TestCommand extends Command {
+import java.util.List;
 
-    public TestCommand() {
-        super("test");
+public class Generator implements ChunkGenerator {
 
-        setDefaultExecutor((sender, context) -> {
-            try {
-                Schematic schematic = Scaffolding.fromPath(Path.of("schematic.schematic"));
+    @Override
+    public void generateChunkData(@NotNull ChunkBatch chunkBatch, int chunkX, int chunkZ) {
+        for (int x = 0; x < 16; x++)
+            for (int z = 0; z < 16; z++)
+                for (int y = 0; y < 40; y++)
+                    chunkBatch.setBlock(x, y, z, Block.STONE);
+    }
 
-                Player player = (Player) sender;
-                Instance instance = player.getInstance();
-                Pos position = player.getPosition();
-
-                schematic.build(instance, position).thenRun(() -> player.sendMessage("Done!"));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+    @Override
+    public @Nullable List<ChunkPopulator> getPopulators() {
+        return null;
     }
 
 }

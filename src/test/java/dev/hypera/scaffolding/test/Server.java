@@ -20,10 +20,10 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-package dev.sllcoding.scaffolding.test;
+package dev.hypera.scaffolding.test;
 
-import dev.sllcoding.scaffolding.test.commands.TestCommand;
-import dev.sllcoding.scaffolding.test.generator.Generator;
+import dev.hypera.scaffolding.test.commands.TestCommand;
+import dev.hypera.scaffolding.test.generator.Generator;
 import java.nio.file.Path;
 import dev.hypera.scaffolding.Scaffolding;
 import dev.hypera.scaffolding.instance.SchematicChunkLoader;
