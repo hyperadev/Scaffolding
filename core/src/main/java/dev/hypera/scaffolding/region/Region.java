@@ -22,26 +22,26 @@
  */
 package dev.hypera.scaffolding.region;
 
-import dev.hypera.scaffolding.schematic.ScaffoldingUtils;
+import dev.hypera.scaffolding.schematic.LegacyLookup;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.Instance;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
 
 /**
  * Represents a rectangle 3 dimensional region of blocks within an {@link Instance}.
  */
 public final class Region {
 
-    private final Instance instance;
-    private final Point lower;
-    private final Point upper;
+    private final @NotNull Instance instance;
+    private final @NotNull Point lower;
+    private final @NotNull Point upper;
 
     /**
      * Constructs a new region. The region is defined by the two provided positions. As long as the two positions are opposite of each other in the region, {@code lower} and {@code upper} will be calculated automatically.
@@ -50,20 +50,35 @@ public final class Region {
      * @param p1       The first point of the region.
      * @param p2       The second point of the region.
      */
-    public Region(@NotNull final Instance instance, @NotNull final Point p1, @NotNull final Point p2) {
+    public Region(@NotNull Instance instance, @NotNull Point p1, @NotNull Point p2) {
         this.instance = Objects.requireNonNull(instance);
         this.lower = calcPoint(p1, p2, Math::min);
         this.upper = calcPoint(p1, p2, Math::max);
     }
 
+
+
     /**
-     * Force loads all {@link Chunk}s in this region.
+     * Force loads all {@link Chunk}s this region.
      *
      * @return a {@link CompletableFuture<Region>} that will complete once all chunks in the region have been loaded. The future will give the region as the result so that you can chain it.
      */
-    public CompletableFuture<Region> loadChunksWithinRegion() {
-        return ScaffoldingUtils.loadChunks(this);
+    public @NotNull CompletableFuture<Region> loadChunks() {
+        int lengthX = getUpperChunkX() - getLowerChunkX() + 1;
+        int lengthZ = getUpperChunkZ() - getLowerChunkZ() + 1;
+
+        CompletableFuture<?>[] futures = new CompletableFuture[lengthX * lengthZ];
+        int index = 0;
+
+        for (int x = getLowerChunkX(); x <= getUpperChunkX(); ++x) {
+            for (int z = getLowerChunkZ(); z <= getUpperChunkZ(); ++z) {
+                futures[index++] = instance.loadChunk(x, z);
+            }
+        }
+
+        return CompletableFuture.allOf(futures).thenApply(v -> this);
     }
+
 
     /**
      * @return the width of this region.
@@ -158,6 +173,12 @@ public final class Region {
         return lower;
     }
 
+
+    private @NotNull Point calcPoint(@NotNull Point p1, @NotNull Point p2, BiFunction<Integer, Integer, Integer> operation) {
+        return new Vec(operation.apply(p1.blockX(), p2.blockX()), operation.apply(p1.blockY(), p2.blockY()), operation.apply(p1.blockZ(), p2.blockZ()));
+    }
+
+
     @Override
     public int hashCode() {
         return Objects.hash(instance, lower, upper);
@@ -165,27 +186,17 @@ public final class Region {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (Region) obj;
-        return Objects.equals(this.instance, that.instance) &&
-                Objects.equals(this.lower, that.lower) &&
-                Objects.equals(this.upper, that.upper);
+        return obj == this || (
+            obj instanceof Region region
+                && Objects.equals(this.instance, region.getInstance())
+                && Objects.equals(this.lower, region.getLower())
+                && Objects.equals(this.upper, region.getUpper())
+        );
     }
 
     @Override
     public String toString() {
-        return "Region[" +
-                "instance=" + instance + ", " +
-                "lower=" + lower + ", " +
-                "upper=" + upper + ']';
+        return "Region[" + "instance=" + instance + ", " + "lower=" + lower + ", " + "upper=" + upper + ']';
     }
 
-    private @NotNull Point calcPoint(@NotNull Point p1, @NotNull Point p2, BiFunction<Integer, Integer, Integer> operation) {
-        final int x = operation.apply(p1.blockX(), p2.blockX());
-        final int y = operation.apply(p1.blockY(), p2.blockY());
-        final int z = operation.apply(p1.blockZ(), p2.blockZ());
-
-        return new Vec(x, y, z);
-    }
 }

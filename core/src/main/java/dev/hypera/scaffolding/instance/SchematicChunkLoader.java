@@ -24,6 +24,11 @@ package dev.hypera.scaffolding.instance;
 
 import dev.hypera.scaffolding.schematic.Schematic;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.DynamicChunk;
@@ -32,30 +37,19 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.ChunkBatch;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.utils.chunk.ChunkUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.vectrix.flare.fastutil.Long2ObjectSyncMap;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 // TODO: Entities?
 @SuppressWarnings("UnstableApiUsage")
 public class SchematicChunkLoader implements IChunkLoader {
 
     private final @NotNull Function<@NotNull Chunk, @NotNull CompletableFuture<Void>> saveHandler;
-    private final Long2ObjectMap<ChunkBatch> batches = Long2ObjectSyncMap.hashmap();
+    private final @NotNull Long2ObjectMap<ChunkBatch> batches = Long2ObjectSyncMap.hashmap();
 
-    private SchematicChunkLoader(
-            @NotNull Function<@NotNull Chunk, @NotNull CompletableFuture<Void>> saveHandler,
-            @NotNull Collection<Schematic> schematics,
-            int offsetX,
-            int offsetY,
-            int offsetZ
-    ) {
+    private SchematicChunkLoader(@NotNull Function<@NotNull Chunk, @NotNull CompletableFuture<Void>> saveHandler, @NotNull Collection<Schematic> schematics, int offsetX, int offsetY, int offsetZ) {
         this.saveHandler = saveHandler;
 
         // The block setter used for Schematic#apply
@@ -77,14 +71,17 @@ public class SchematicChunkLoader implements IChunkLoader {
         }
     }
 
+
     /**
      * Creates a builder for a {@link SchematicChunkLoader}.
      *
      * @return The builder.
      */
+    @Contract("-> new")
     public static @NotNull Builder builder() {
         return new Builder();
     }
+
 
     @Override
     public @NotNull CompletableFuture<@Nullable Chunk> loadChunk(@NotNull Instance instance, int chunkX, int chunkZ) {
@@ -102,16 +99,17 @@ public class SchematicChunkLoader implements IChunkLoader {
         return future;
     }
 
+
     @Override
     public @NotNull CompletableFuture<Void> saveChunk(@NotNull Chunk chunk) {
         return saveHandler.apply(chunk);
     }
 
+
     public static class Builder {
 
-        private final List<Schematic> schematics = new ArrayList<>();
-        private @NotNull Function<@NotNull Chunk, @NotNull CompletableFuture<Void>> handler = chunk ->
-                CompletableFuture.completedFuture(null);
+        private final @NotNull List<Schematic> schematics = new ArrayList<>();
+        private @NotNull Function<@NotNull Chunk, @NotNull CompletableFuture<Void>> handler = chunk -> CompletableFuture.completedFuture(null);
         private int xOffset;
         private int yOffset;
         private int zOffset;
@@ -126,9 +124,11 @@ public class SchematicChunkLoader implements IChunkLoader {
          * This means that the last added schematic is the only schematic that is guaranteed to have all its data.
          *
          * @param schematic The schematic to add.
+         *
          * @return This builder.
          */
         // TODO: Add a way to position schematics within the instance.
+        @Contract("_ -> this")
         public @NotNull Builder addSchematic(@NotNull Schematic schematic) {
             schematics.add(schematic);
             return this;
@@ -140,8 +140,10 @@ public class SchematicChunkLoader implements IChunkLoader {
          * @param x The x offset.
          * @param y The y offset.
          * @param z The z offset.
+         *
          * @return This builder.
          */
+        @Contract("_,_,_ -> this")
         public @NotNull Builder offset(int x, int y, int z) {
             this.xOffset = x;
             this.yOffset = y;
@@ -153,13 +155,16 @@ public class SchematicChunkLoader implements IChunkLoader {
          * Specifies the handler to use to save the chunks.
          *
          * @param handler The handler.
+         *
          * @return This builder.
          */
-        public @NotNull Builder saveChunkHandler(@NotNull Function<@NotNull Chunk, @NotNull CompletableFuture<Void>> handler) {
+        @Contract("_ -> this")
+        public @NotNull Builder saveHandler(@NotNull Function<@NotNull Chunk, @NotNull CompletableFuture<Void>> handler) {
             this.handler = handler;
             return this;
         }
 
+        @Contract("-> new")
         public @NotNull SchematicChunkLoader build() {
             return new SchematicChunkLoader(handler, List.copyOf(schematics), xOffset, yOffset, zOffset);
         }

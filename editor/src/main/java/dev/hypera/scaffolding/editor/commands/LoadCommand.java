@@ -22,9 +22,13 @@
  */
 package dev.hypera.scaffolding.editor.commands;
 
+import dev.hypera.scaffolding.Scaffolding;
 import dev.hypera.scaffolding.editor.Clipboard;
 import dev.hypera.scaffolding.editor.ScaffoldingEditor;
-import dev.hypera.scaffolding.Scaffolding;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.Stream;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.Command;
@@ -33,11 +37,6 @@ import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.stream.Stream;
 
 public class LoadCommand extends Command {
 

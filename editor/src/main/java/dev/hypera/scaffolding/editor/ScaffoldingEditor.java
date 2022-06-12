@@ -26,6 +26,11 @@ import dev.hypera.scaffolding.editor.commands.CopyCommand;
 import dev.hypera.scaffolding.editor.commands.LoadCommand;
 import dev.hypera.scaffolding.editor.commands.PasteCommand;
 import dev.hypera.scaffolding.editor.features.SelectionFeature;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
@@ -44,14 +49,6 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.world.DimensionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
 
 public class ScaffoldingEditor {
 
@@ -60,7 +57,6 @@ public class ScaffoldingEditor {
             .ambientLight(2.0f)
             .build();
     public static final HashMap<Player, Clipboard> clipboards = new HashMap<>();
-    private static final Logger LOGGER = LoggerFactory.getLogger(ScaffoldingEditor.class);
 
     public static void main(String[] args) throws IOException {
         if (!Files.isDirectory(SCHEMATICS_PATH)) Files.createDirectory(SCHEMATICS_PATH);

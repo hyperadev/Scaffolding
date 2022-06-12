@@ -23,24 +23,24 @@
 package dev.hypera.scaffolding.schematic;
 
 import dev.hypera.scaffolding.region.Region;
+import java.util.concurrent.CompletableFuture;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.AbsoluteBlockBatch;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.instance.block.Block.Setter;
 import net.minestom.server.instance.generator.GenerationUnit;
-import net.minestom.server.instance.generator.UnitModifier;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * A parsed schematic.
  */
-public class Schematic implements Block.Setter {
+@SuppressWarnings({ "unused", "UnstableApiUsage" })
+public final class Schematic implements Block.Setter {
 
     private short[] blocks;
 
@@ -74,30 +74,32 @@ public class Schematic implements Block.Setter {
      * Copies blocks from the given region into this schematic.
      *
      * @param region the {@link Region} to copy from
+     *
      * @return a {@link CompletableFuture<Schematic>} that will complete once all blocks have been copied
      */
-    public @NotNull CompletableFuture<Schematic> copy(@NotNull final Region region) {
+    public @NotNull CompletableFuture<Schematic> copy(@NotNull Region region) {
         reset();
 
-        return ScaffoldingUtils.loadChunks(region).thenApply((v) -> {
-            final Instance instance = region.getInstance();
-            final Point lower = region.getLower();
-            final int width = region.getWidth();
-            final int height = region.getHeight();
-            final int length = region.getLength();
+        return region.loadChunks().thenApply((ignored) -> {
+            Instance instance = region.getInstance();
+            Point lower = region.getLower();
+            int width = region.getWidth();
+            int height = region.getHeight();
+            int length = region.getLength();
 
             setSize(width, height, length);
 
             for (int x = 0; x < width; ++x) {
                 for (int y = 0; y < height; ++y) {
                     for (int z = 0; z < length; ++z) {
-                        final int blockX = lower.blockX() + x;
-                        final int blockY = lower.blockY() + y;
-                        final int blockZ = lower.blockZ() + z;
+                        int blockX = lower.blockX() + x;
+                        int blockY = lower.blockY() + y;
+                        int blockZ = lower.blockZ() + z;
 
-                        final Block block = region.getInstance().getBlock(blockX, blockY, blockZ, Block.Getter.Condition.TYPE);
-
-                        if (block != null) blocks[getBlockIndex(x, y, z)] = block.stateId();
+                        Block block = region.getInstance().getBlock(blockX, blockY, blockZ, Block.Getter.Condition.TYPE);
+                        if (block != null) {
+                            blocks[getBlockIndex(x, y, z)] = block.stateId();
+                        }
                     }
                 }
             }
@@ -129,6 +131,7 @@ public class Schematic implements Block.Setter {
      * @param x block x coordinate
      * @param y block y coordinate
      * @param z block z coordinate
+     *
      * @return the index of the block at the given coordinates
      */
     public int getBlockIndex(int x, int y, int z) {
@@ -140,9 +143,10 @@ public class Schematic implements Block.Setter {
      *
      * @param instance the {@link Instance} to build this schematic in
      * @param position the {@link Point} to build this schematic at (note: the schematics offset will be applied to this position to get the lower corner)
+     *
      * @return a {@link CompletableFuture<Schematic>} that will complete once the schematic has been built
      */
-    public @NotNull CompletableFuture<Region> build(@NotNull final Instance instance, @NotNull final Point position) {
+    public @NotNull CompletableFuture<Region> build(@NotNull Instance instance, @NotNull Point position) {
         return build(instance, position, false, false, false);
     }
 
@@ -154,22 +158,24 @@ public class Schematic implements Block.Setter {
      * @param flipX    whether to flip the schematic along the X axis
      * @param flipY    whether to flip the schematic along the Y axis
      * @param flipZ    whether to flip the schematic along the Z axis
+     *
      * @return a {@link CompletableFuture<Schematic>} that will complete once the schematic has been built
      */
-    public @NotNull CompletableFuture<Region> build(@NotNull final Instance instance, @NotNull final Point position, final boolean flipX, final boolean flipY, final boolean flipZ) {
-        if (locked) throw new IllegalStateException("Cannot build a locked schematic.");
+    public @NotNull CompletableFuture<Region> build(@NotNull Instance instance, @NotNull Point position, boolean flipX, boolean flipY, boolean flipZ) {
+        if (locked) {
+            throw new IllegalStateException("Cannot build a locked schematic.");
+        }
 
-        final Region region = getContainingRegion(instance, position);
-        if (!isPlaceable(region))
+        Region region = getContainingRegion(instance, position);
+        if (!isPlaceable(region)) {
             throw new IllegalStateException("Cannot build schematic at this position since blocks would go outside of world boundaries. " + position);
+        }
 
-        return ScaffoldingUtils.loadChunks(region).thenApplyAsync((ignored) -> {
-            final AbsoluteBlockBatch blockBatch = new AbsoluteBlockBatch();
-
+        return region.loadChunks().thenApplyAsync((ignored) -> {
+            AbsoluteBlockBatch blockBatch = new AbsoluteBlockBatch();
             apply(region.getLower(), flipX, flipY, flipZ, blockBatch);
-            System.out.println("Building schematic.");
 
-            final CompletableFuture<Region> future = new CompletableFuture<>();
+            CompletableFuture<Region> future = new CompletableFuture<>();
             blockBatch.apply(instance, () -> future.complete(null));
             return future.join();
         });
@@ -178,20 +184,30 @@ public class Schematic implements Block.Setter {
     /**
      * @param instance the {@link Instance} to check
      * @param position the {@link Point} to check
+     *
      * @return the {@link Region} that this schematic would take up if placed at the given position
      */
-    public @NotNull Region getContainingRegion(@NotNull final Instance instance, @NotNull final Point position) {
+    public @NotNull Region getContainingRegion(@NotNull Instance instance, @NotNull Point position) {
         return new Region(instance, position.add(offsetX, offsetY, offsetZ), position.add(offsetX + width, offsetY + height, offsetZ + length));
     }
 
-    @ApiStatus.Internal
-    private boolean isPlaceable(@NotNull final Region region) {
-        final Instance instance = region.getInstance();
+    @Internal
+    private boolean isPlaceable(@NotNull Region region) {
+        Instance instance = region.getInstance();
+        return region.getUpper().blockY() < instance.getDimensionType().getMaxY() && region.getLower().blockY() > instance.getDimensionType().getMinY();
+    }
 
-        final boolean isAboveWorldBounds = region.getUpper().blockY() >= instance.getDimensionType().getMaxY();
-        final boolean isBelowWorldBounds = region.getLower().blockY() < instance.getDimensionType().getMinY();
 
-        return !(isAboveWorldBounds || isBelowWorldBounds);
+    /**
+     * Applies the schematic to the given block setter.
+     *
+     * @param setter the block setter
+     *
+     * @deprecated See {@link Schematic#apply(Point, boolean, boolean, boolean, Setter)}
+     */
+    @Deprecated
+    public void apply(@NotNull Block.Setter setter) {
+        apply(Vec.ZERO, false, false, false, setter);
     }
 
     /**
@@ -203,24 +219,25 @@ public class Schematic implements Block.Setter {
      * @param flipZ    whether to flip the schematic along the Z axis
      * @param setter   the {@link Block.Setter} to apply this schematic to
      */
-    public void apply(@NotNull final Point position, final boolean flipX, final boolean flipY, final boolean flipZ, @NotNull final Block.Setter setter) {
-        if (locked) throw new IllegalStateException("Cannot apply a locked schematic.");
+    public void apply(@NotNull Point position, boolean flipX, boolean flipY, boolean flipZ, @NotNull Block.Setter setter) {
+        if (locked) {
+            throw new IllegalStateException("Cannot apply a locked schematic.");
+        }
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 for (int z = 0; z < length; z++) {
-                    // Will the JVM optimize out the ternary operator? I hope so.
-                    final int relativeBlockX = flipX ? width - x - 1 : x;
-                    final int relativeBlockY = flipY ? height - y - 1 : y;
-                    final int relativeBlockZ = flipZ ? length - z - 1 : z;
+                    int relativeBlockX = flipX ? width - x - 1 : x;
+                    int relativeBlockY = flipY ? height - y - 1 : y;
+                    int relativeBlockZ = flipZ ? length - z - 1 : z;
+                    int absoluteX = position.blockX() + x;
+                    int absoluteY = position.blockY() + y;
+                    int absoluteZ = position.blockZ() + z;
 
-                    final int absoluteX = position.blockX() + x;
-                    final int absoluteY = position.blockY() + y;
-                    final int absoluteZ = position.blockZ() + z;
-
-                    final Block block = getBlock(relativeBlockX, relativeBlockY, relativeBlockZ);
-
-                    if (block != null) setter.setBlock(absoluteX, absoluteY, absoluteZ, block);
+                    Block block = getBlock(relativeBlockX, relativeBlockY, relativeBlockZ);
+                    if (block != null) {
+                        setter.setBlock(absoluteX, absoluteY, absoluteZ, block);
+                    }
                 }
             }
         }
@@ -230,18 +247,19 @@ public class Schematic implements Block.Setter {
      * @param x block x coordinate
      * @param y block y coordinate
      * @param z block z coordinate
+     *
      * @return the block at the given coordinates
      */
     @Nullable
-    public Block getBlock(final int x, final int y, final int z) {
-        short stateId = getStateId(x, y, z);
-        return Block.fromStateId(stateId);
+    public Block getBlock(int x, int y, int z) {
+        return Block.fromStateId(getStateId(x, y, z));
     }
 
     /**
      * @param x block x coordinate
      * @param y block y coordinate
      * @param z block z coordinate
+     *
      * @return the state ID at the given coordinates
      */
     public short getStateId(int x, int y, int z) {
@@ -256,14 +274,13 @@ public class Schematic implements Block.Setter {
      * @param flipZ    whether to flip the schematic along the Z axis
      */
     public void fork(@NotNull GenerationUnit unit, @NotNull Point position, boolean flipX, boolean flipY, boolean flipZ) {
-        if (locked) throw new IllegalStateException("Cannot fork a locked schematic.");
+        if (locked) {
+            throw new IllegalStateException("Cannot fork a locked schematic.");
+        }
 
-        final Point start = position.sub(offsetX, offsetY, offsetZ);
-        final Point end = start.add(width, height, length);
-
-        UnitModifier forkModifier = unit.fork(start, end).modifier();
-
-        apply(position, flipX, flipY, flipZ, forkModifier);
+        Point start = position.sub(offsetX, offsetY, offsetZ);
+        Point end = start.add(width, height, length);
+        apply(position, flipX, flipY, flipZ, unit.fork(start, end).modifier());
     }
 
     /**
@@ -372,7 +389,7 @@ public class Schematic implements Block.Setter {
     /**
      * @param offset the {@link Point} to offset this schematic by
      */
-    public void setOffset(@NotNull final Point offset) {
+    public void setOffset(@NotNull Point offset) {
         setOffset(offset.blockX(), offset.blockY(), offset.blockZ());
     }
 
@@ -388,38 +405,23 @@ public class Schematic implements Block.Setter {
     }
 
     /**
-     * Applies the schematic to the given block setter.
-     *
-     * @param setter the block setter
-     * @deprecated See {@link Schematic#apply(Point, boolean, boolean, boolean, Setter)}
-     */
-    @Deprecated
-    public void apply(@NotNull Block.Setter setter) {
-        apply(Vec.ZERO, false, false, false, setter);
-    }
-
-    /**
      * @param instance the {@link Instance} to check
      * @param position the {@link Point} to check
+     *
      * @return {@code true} if the given position is within the bounds of the given instance, {@code false} otherwise. If either the instance or the position is null, false is returned.
      */
-    public boolean isPlaceable(@Nullable final Instance instance, @Nullable final Point position) {
-        if (instance == null || position == null) return false;
+    public boolean isPlaceable(@Nullable Instance instance, @Nullable Point position) {
+        if (instance == null || position == null) {
+            return false;
+        }
 
         return isPlaceable(getContainingRegion(instance, position));
     }
 
+
     @Override
     public String toString() {
-        return "Schematic{" +
-                ", width=" + width +
-                ", height=" + height +
-                ", length=" + length +
-                ", offsetX=" + offsetX +
-                ", offsetY=" + offsetY +
-                ", offsetZ=" + offsetZ +
-                ", area=" + area +
-                ", locked=" + locked +
-                '}';
+        return "Schematic{width=" + width + ", height=" + height + ", length=" + length + ", offsetX=" + offsetX + ", offsetY=" + offsetY + ", offsetZ=" + offsetZ + ", area=" + area + ", locked=" + locked + '}';
     }
+
 }

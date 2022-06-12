@@ -24,15 +24,20 @@ package dev.hypera.scaffolding.schematic.readers;
 
 import dev.hypera.scaffolding.schematic.NBTSchematicReader;
 import dev.hypera.scaffolding.schematic.Schematic;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
-
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 /**
  * A parser for Sponge schematics. (.schem files)
@@ -43,7 +48,13 @@ import java.util.concurrent.CompletionException;
 public class SpongeSchematicReader extends NBTSchematicReader {
 
     @Override
-    public CompletableFuture<Schematic> read(@NotNull final NBTCompound nbtTag, @NotNull final Schematic schematic) {
+    public boolean isReadable(@NotNull NBTCompound compound) {
+        // TODO: Improve this
+        return compound.contains("Palette");
+    }
+
+    @Override
+    public CompletableFuture<Schematic> read(@NotNull NBTCompound nbtTag, @NotNull Schematic schematic) {
         schematic.reset();
 
         return CompletableFuture.supplyAsync(() -> {
@@ -64,6 +75,7 @@ public class SpongeSchematicReader extends NBTSchematicReader {
         short width = getShort(nbtTag, "Width", "Invalid Schematic: No Width");
         short height = getShort(nbtTag, "Height", "Invalid Schematic: No Height");
         short length = getShort(nbtTag, "Length", "Invalid Schematic: No Length");
+
         schematic.setSize(width, height, length);
     }
 
@@ -72,6 +84,7 @@ public class SpongeSchematicReader extends NBTSchematicReader {
         int weOffsetX = getInteger(metadata, "WEOffsetX", "Invalid Schematic: No WEOffsetX In Metadata");
         int weOffsetY = getInteger(metadata, "WEOffsetY", "Invalid Schematic: No WEOffsetY In Metadata");
         int weOffsetZ = getInteger(metadata, "WEOffsetZ", "Invalid Schematic: No WEOffsetZ In Metadata");
+
         schematic.setOffset(weOffsetX, weOffsetY, weOffsetZ);
     }
 
@@ -80,20 +93,23 @@ public class SpongeSchematicReader extends NBTSchematicReader {
         NBTCompound nbtPalette = getCompound(nbtTag, "Palette", "Invalid Schematic: No Palette");
 
         Set<String> keys = nbtPalette.getKeys();
-        if (keys.size() != maxPalette)
+        if (keys.size() != maxPalette) {
             throw new NBTException("Invalid Schematic: PaletteMax does not match Palette size");
+        }
 
-        final Map<String, Integer> unsortedPalette = new HashMap<>();
-        for (String key : keys)
+        Map<String, Integer> unsortedPalette = new HashMap<>();
+        for (String key : keys) {
             unsortedPalette.put(key, getInteger(nbtPalette, key, "Invalid Schematic: Palette contains invalid value"));
+        }
 
-
-        final Map<String, Integer> palette = unsortedPalette.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .collect(LinkedHashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue()), LinkedHashMap::putAll);
+        Map<String, Integer> palette = unsortedPalette.entrySet().stream().sorted(Map.Entry.comparingByValue())
+            .collect(LinkedHashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue()), LinkedHashMap::putAll);
 
         ImmutableByteArray blocksData = nbtTag.getByteArray("BlockData");
-        if (blocksData == null || blocksData.getSize() == 0) throw new NBTException("Invalid Schematic: No BlockData");
+        if (blocksData == null || blocksData.getSize() == 0) {
+            throw new NBTException("Invalid Schematic: No BlockData");
+        }
+
         byte[] blocksDataArr = blocksData.copyArray();
 
         int index = 0;
@@ -108,11 +124,15 @@ public class SpongeSchematicReader extends NBTSchematicReader {
 
             while (true) {
                 value |= (blocksDataArr[i] & 127) << (varIntLength++ * 7);
-                if (varIntLength > 5) throw new NBTException("Invalid Schematic: BlockData has invalid length");
+                if (varIntLength > 5) {
+                    throw new NBTException("Invalid Schematic: BlockData has invalid length");
+                }
+
                 if ((blocksDataArr[i] & 128) != 128) {
                     i++;
                     break;
                 }
+
                 i++;
             }
 
@@ -131,7 +151,10 @@ public class SpongeSchematicReader extends NBTSchematicReader {
 
     private short getStateId(@NotNull String input) {
         Block block = getBlock(input);
-        if (block == null) return 0;
+        if (null == block) {
+            return 0;
+        }
+
         String states = input.replaceAll(block.name(), "");
 
         if (states.startsWith("[")) {
@@ -147,12 +170,13 @@ public class SpongeSchematicReader extends NBTSchematicReader {
                 e.printStackTrace();
                 return block.stateId();
             }
-        } else return block.stateId();
+        } else {
+            return block.stateId();
+        }
     }
 
-    private Block getBlock(@NotNull String input) {
-        String namespaceId = input.split("\\[")[0];
-
-        return Block.fromNamespaceId(namespaceId);
+    private @Nullable Block getBlock(@NotNull String input) {
+        return Block.fromNamespaceId(input.split("\\[")[0]);
     }
+
 }

@@ -33,7 +33,8 @@ java {
 
 dependencies {
     compileOnlyApi("com.github.Minestom:Minestom:7be96b7679")
-    compileOnlyApi("space.vectrix.flare:flare-fastutil:2.0.1")
+    compileOnly("space.vectrix.flare:flare-fastutil:2.0.1")
+    compileOnly("com.google.code.gson:gson:2.9.0")
 
     testImplementation("com.github.Minestom:Minestom:7be96b7679")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
