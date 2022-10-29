@@ -26,19 +26,16 @@ import dev.hypera.scaffolding.schematic.NBTSchematicReader;
 import dev.hypera.scaffolding.schematic.Schematic;
 import dev.hypera.scaffolding.schematic.readers.MCEditSchematicReader;
 import dev.hypera.scaffolding.schematic.readers.SpongeSchematicReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.CompressedProcesser;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 import org.jglrxavpok.hephaistos.nbt.NBTReader;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A static utility class primarily used to parse schematics.
@@ -49,14 +46,14 @@ public final class Scaffolding {
     private static final @NotNull NBTSchematicReader MC_EDIT_SCHEMATIC_READER = new MCEditSchematicReader();
     private static final @NotNull NBTSchematicReader SPONGE_SCHEMATIC_READER = new SpongeSchematicReader();
 
-    private Scaffolding() {}
+    private Scaffolding() {
+    }
 
 
     /**
      * Automatically detects the type of schematic and parses the file.
      *
      * @param path Schematic path
-     *
      * @return parsed schematic
      * @throws IOException              if the file is invalid
      * @throws NBTException             if the schematic is invalid
@@ -69,7 +66,6 @@ public final class Scaffolding {
     /**
      * @param path      the {@link Path} to read from
      * @param schematic the {@link Schematic} to load the data into
-     *
      * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
      * @throws IOException  if the file is invalid
      * @throws NBTException if the NBT tag is invalid
@@ -84,7 +80,6 @@ public final class Scaffolding {
      * Automatically detects the type of schematic and parses the file.
      *
      * @param file Schematic file
-     *
      * @return parsed schematic
      * @throws IOException              if the file is invalid
      * @throws NBTException             if the schematic is invalid
@@ -97,7 +92,6 @@ public final class Scaffolding {
     /**
      * @param file      the {@link File} to read from
      * @param schematic the {@link Schematic} to load the data into
-     *
      * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
      * @throws IOException  if the file is invalid
      * @throws NBTException if the NBT tag is invalid
@@ -112,7 +106,6 @@ public final class Scaffolding {
      * Automatically detects the type of schematic and parses the input stream
      *
      * @param inputStream Schematic input
-     *
      * @return a {@link CompletableFuture<Schematic>} that will contain the schematic once loaded
      * @throws IOException              if the input stream is invalid
      * @throws NBTException             if the schematic is invalid
@@ -125,7 +118,6 @@ public final class Scaffolding {
     /**
      * @param inputStream the {@link InputStream} to read from
      * @param schematic   the {@link Schematic} to load the data into
-     *
      * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
      * @throws IOException  if the input stream is invalid
      * @throws NBTException if the NBT tag is invalid
@@ -139,7 +131,6 @@ public final class Scaffolding {
      * Automatically detects the schematic format from the provided {@link NBTCompound} and parses it.
      *
      * @param nbtTag The {@link NBTCompound} to read from
-     *
      * @return A {@link CompletableFuture<Schematic>} that will complete with the schematic once it's loaded
      * @throws NBTException If the NBT tag is invalid
      */
@@ -150,7 +141,6 @@ public final class Scaffolding {
     /**
      * @param nbtTag    The NBT tag to parse
      * @param schematic The {@link Schematic} to load the data into
-     *
      * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
      * @throws NBTException if the NBT tag is invalid
      */
@@ -165,10 +155,8 @@ public final class Scaffolding {
     }
 
 
-
     /**
      * @param path The {@link Path} to read from
-     *
      * @return The parsed {@link Schematic}
      * @throws IOException              if the file is invalid
      * @throws NBTException             if the schematic is invalid
@@ -181,7 +169,6 @@ public final class Scaffolding {
     /**
      * @param path      the {@link Path} to read from
      * @param schematic the {@link Schematic} to load the data into
-     *
      * @return the parsed {@link Schematic}
      * @throws IOException  if the file is invalid
      * @throws NBTException if the NBT tag is invalid
@@ -193,7 +180,6 @@ public final class Scaffolding {
 
     /**
      * @param file The {@link File} to read from
-     *
      * @return The parsed {@link Schematic}
      * @throws IOException              if the file is invalid
      * @throws NBTException             if the schematic is invalid
@@ -206,7 +192,6 @@ public final class Scaffolding {
     /**
      * @param file      the {@link File} to read from
      * @param schematic the {@link Schematic} to load the data into
-     *
      * @return the parsed {@link Schematic}
      * @throws IOException  if the file is invalid
      * @throws NBTException if the NBT tag is invalid
@@ -220,7 +205,6 @@ public final class Scaffolding {
      * Automatically detects the schematic format from the provided {@link NBTCompound} and parses it synchronously.
      *
      * @param nbtTag the {@link NBTCompound} to read from
-     *
      * @return the parsed {@link Schematic}
      * @throws NBTException             if the NBT tag is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
@@ -232,7 +216,6 @@ public final class Scaffolding {
     /**
      * @param nbtTag    The NBT tag to parse
      * @param schematic The {@link Schematic} to load the data into
-     *
      * @return the parsed {@link Schematic}
      * @throws NBTException if the NBT tag is invalid
      */
@@ -243,7 +226,6 @@ public final class Scaffolding {
 
     /**
      * @param inputStream The {@link InputStream} to read from
-     *
      * @return The parsed {@link Schematic}
      * @throws IOException              if the input stream is invalid
      * @throws NBTException             if the schematic is invalid
@@ -256,7 +238,6 @@ public final class Scaffolding {
     /**
      * @param inputStream the {@link InputStream} to read from
      * @param schematic   the {@link Schematic} to load the data into
-     *
      * @return the parsed {@link Schematic}
      * @throws IOException  if the input stream is invalid
      * @throws NBTException if the NBT tag is invalid

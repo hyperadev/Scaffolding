@@ -22,17 +22,16 @@
  */
 package dev.hypera.scaffolding.region;
 
-import dev.hypera.scaffolding.schematic.LegacyLookup;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.Instance;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 
 /**
  * Represents a rectangle 3 dimensional region of blocks within an {@link Instance}.
@@ -55,7 +54,6 @@ public final class Region {
         this.lower = calcPoint(p1, p2, Math::min);
         this.upper = calcPoint(p1, p2, Math::max);
     }
-
 
 
     /**
@@ -187,10 +185,10 @@ public final class Region {
     @Override
     public boolean equals(Object obj) {
         return obj == this || (
-            obj instanceof Region region
-                && Objects.equals(this.instance, region.getInstance())
-                && Objects.equals(this.lower, region.getLower())
-                && Objects.equals(this.upper, region.getUpper())
+                obj instanceof Region region
+                        && Objects.equals(this.instance, region.getInstance())
+                        && Objects.equals(this.lower, region.getLower())
+                        && Objects.equals(this.upper, region.getUpper())
         );
     }
 

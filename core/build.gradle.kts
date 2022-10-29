@@ -32,13 +32,13 @@ java {
 }
 
 dependencies {
-    compileOnlyApi("com.github.Minestom:Minestom:7be96b7679")
-    compileOnly("space.vectrix.flare:flare-fastutil:2.0.1")
-    compileOnly("com.google.code.gson:gson:2.9.0")
+    compileOnlyApi("com.github.Minestom:Minestom:${rootProject.extra["minestomVersion"]}")
+    compileOnly("space.vectrix.flare:flare-fastutil:${rootProject.extra["fastUtilVersion"]}")
+    compileOnly("com.google.code.gson:gson:${rootProject.extra["gsonVersion"]}")
 
-    testImplementation("com.github.Minestom:Minestom:7be96b7679")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testImplementation("com.github.Minestom:Minestom:${rootProject.extra["minestomVersion"]}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${rootProject.extra["jupiterAPIVersion"]}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${rootProject.extra["jupiterEngineVersion"]}")
 }
 
 publishing {

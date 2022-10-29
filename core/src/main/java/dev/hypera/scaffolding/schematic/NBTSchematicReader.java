@@ -22,11 +22,12 @@
  */
 package dev.hypera.scaffolding.schematic;
 
-import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A parser for schematics that uses NBT to store data.
@@ -35,6 +36,7 @@ public abstract class NBTSchematicReader {
 
     /**
      * Checks if the provided NBT tag can be read by this reader.
+     *
      * @param compound The {@link NBTCompound} to check
      * @return whether this reader can read the provided tag.
      */
@@ -45,7 +47,6 @@ public abstract class NBTSchematicReader {
      *
      * @param compound  The {@link NBTCompound} to read from
      * @param schematic The {@link Schematic} to read into
-     *
      * @return a {@link CompletableFuture<Schematic>} that will be completed with the {@link Schematic}
      * @throws NBTException If the provided NBT tag is invalid
      */
@@ -55,7 +56,6 @@ public abstract class NBTSchematicReader {
      * @param compound         The {@link NBTCompound} to read from
      * @param key              The key to look for
      * @param exceptionMessage The exception message to throw if the key is not found
-     *
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
      */
@@ -72,7 +72,6 @@ public abstract class NBTSchematicReader {
      * @param compound         The {@link NBTCompound} to read from
      * @param key              The key to look for
      * @param exceptionMessage The exception message to throw if the key is not found
-     *
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
      */
@@ -89,7 +88,6 @@ public abstract class NBTSchematicReader {
      * @param compound         The {@link NBTCompound} to read from
      * @param key              The key to look for
      * @param exceptionMessage The exception message to throw if the key is not found
-     *
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
      */
@@ -106,7 +104,6 @@ public abstract class NBTSchematicReader {
      * @param compound         The {@link NBTCompound} to read from
      * @param key              The key to look for
      * @param exceptionMessage The exception message to throw if the key is not found
-     *
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
      */
@@ -123,7 +120,6 @@ public abstract class NBTSchematicReader {
      * @param compound         The {@link NBTCompound} to read from
      * @param key              The key to look for
      * @param exceptionMessage The exception message to throw if the key is not found
-     *
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
      */
@@ -140,7 +136,6 @@ public abstract class NBTSchematicReader {
      * @param compound         The {@link NBTCompound} to read from
      * @param key              The key to look for
      * @param exceptionMessage The exception message to throw if the key is not found
-     *
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
      */
@@ -157,7 +152,6 @@ public abstract class NBTSchematicReader {
      * @param compound         The {@link NBTCompound} to read from
      * @param key              The key to look for
      * @param exceptionMessage The exception message to throw if the key is not found
-     *
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
      */

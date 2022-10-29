@@ -24,20 +24,16 @@ package dev.hypera.scaffolding.schematic.readers;
 
 import dev.hypera.scaffolding.schematic.NBTSchematicReader;
 import dev.hypera.scaffolding.schematic.Schematic;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jglrxavpok.hephaistos.collections.ImmutableByteArray;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
+
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 /**
  * A parser for Sponge schematics. (.schem files)
@@ -103,7 +99,7 @@ public class SpongeSchematicReader extends NBTSchematicReader {
         }
 
         Map<String, Integer> palette = unsortedPalette.entrySet().stream().sorted(Map.Entry.comparingByValue())
-            .collect(LinkedHashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue()), LinkedHashMap::putAll);
+                .collect(LinkedHashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue()), LinkedHashMap::putAll);
 
         ImmutableByteArray blocksData = nbtTag.getByteArray("BlockData");
         if (blocksData == null || blocksData.getSize() == 0) {

@@ -22,11 +22,13 @@
  */
 package dev.hypera.scaffolding.schematic;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.hypera.scaffolding.Scaffolding;
-import dev.hypera.scaffolding.region.Region;
+import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -35,12 +37,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import net.minestom.server.instance.Chunk;
-import net.minestom.server.instance.Instance;
-import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * A static utility class containing useful methods used throughout Scaffolding.
@@ -69,7 +65,6 @@ public final class LegacyLookup {
     /**
      * @param legacyBlockId   The legacy block ID
      * @param legacyBlockData The legacy block data
-     *
      * @return The modern state ID for the given legacy block ID and data
      */
     public static short stateIdFromLegacy(int legacyBlockId, byte legacyBlockData) {
@@ -82,7 +77,6 @@ public final class LegacyLookup {
      *
      * @param legacyBlockId   the legacy block ID
      * @param legacyBlockData the legacy block data
-     *
      * @return the lookup ID
      */
     @Contract(pure = true)

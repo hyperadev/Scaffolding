@@ -3,16 +3,18 @@
 This guide describes how to setup Scaffolding as a dependency for your project.
 
 ::: info
-Scaffolding is intended to be used as a library for the Minestom framework. You can learn how to setup Minestom [here](https://wiki.minestom.net/setup/dependencies/).
+Scaffolding is intended to be used as a library for the Minestom framework. You can learn how to setup
+Minestom [here](https://wiki.minestom.net/setup/dependencies/).
 :::
-
 
 ## Repository
 
 As with Minestom, Scaffolding uses JitPack to distribute releases.
 
 ### Gradle (Kotlin)
+
 Add JitPack as a repository to your ```build.gradle.kts``` file.
+
 ```kotlin{2}
 repositories {
     maven(url = "https://jitpack.io")
@@ -20,7 +22,9 @@ repositories {
 ```
 
 ### Gradle (Groovy)
+
 Add JitPack as a repository to your ```build.gradle``` file.
+
 ```groovy{2}
 repositories {
     maven { url 'https://jitpack.io' }
@@ -28,7 +32,9 @@ repositories {
 ```
 
 ### Maven
+
 Add JitPack as a repository to your ```pom.xml``` file.
+
 ```xml{2-5}
 <repositories>
     <repository>
@@ -43,7 +49,9 @@ Add JitPack as a repository to your ```pom.xml``` file.
 Keep an eye out for new releases on [Jitpack](https://jitpack.io/#CrystalGamesMc/scaffolding).
 
 ### Gradle (Kotlin)
+
 Add Scaffolding as a dependency in your ```build.gradle.kts``` file.
+
 ```kts{2}
 dependencies {
     implementation("com.github.CrystalGamesMc:scaffolding:Tag")
@@ -51,7 +59,9 @@ dependencies {
 ```
 
 ### Gradle (Groovy)
+
 Add Scaffolding as a dependency in your ```build.gradle``` file.
+
 ```groovy{2}
 dependencies {
     implementation 'com.github.CrystalGamesMc:scaffolding:Tag'
@@ -59,7 +69,9 @@ dependencies {
 ```
 
 ### Maven
+
 Add Scaffolding as a dependency in your ```pom.xml``` file.
+
 ```xml{2-6}
 <dependencies>
     <dependency>

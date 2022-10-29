@@ -26,11 +26,6 @@ import dev.hypera.scaffolding.editor.commands.CopyCommand;
 import dev.hypera.scaffolding.editor.commands.LoadCommand;
 import dev.hypera.scaffolding.editor.commands.PasteCommand;
 import dev.hypera.scaffolding.editor.features.SelectionFeature;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
@@ -49,6 +44,12 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.utils.NamespaceID;
 import net.minestom.server.world.DimensionType;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
 
 public class ScaffoldingEditor {
 
@@ -86,7 +87,7 @@ public class ScaffoldingEditor {
 
             ItemStack wand = ItemStack.builder(Material.WOODEN_AXE)
                     .amount(1)
-                    .displayName(Component.text("Selection Tool", NamedTextColor.WHITE))
+                    .displayName(Component.text("Selection Tool", NamedTextColor.GOLD))
                     .lore(
                             Component.text("Use this to edit the world.", NamedTextColor.GRAY), Component.empty(),
                             Clipboard.FIRST_POINT_COMPONENT.append(Component.text(" - left click", NamedTextColor.GRAY)),

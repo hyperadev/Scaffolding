@@ -24,11 +24,6 @@ package dev.hypera.scaffolding.instance;
 
 import dev.hypera.scaffolding.schematic.Schematic;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.DynamicChunk;
@@ -41,6 +36,12 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.vectrix.flare.fastutil.Long2ObjectSyncMap;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 // TODO: Entities?
 @SuppressWarnings("UnstableApiUsage")
@@ -114,7 +115,8 @@ public class SchematicChunkLoader implements IChunkLoader {
         private int yOffset;
         private int zOffset;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         /**
          * Adds a schematic to this chunk loader.
@@ -124,7 +126,6 @@ public class SchematicChunkLoader implements IChunkLoader {
          * This means that the last added schematic is the only schematic that is guaranteed to have all its data.
          *
          * @param schematic The schematic to add.
-         *
          * @return This builder.
          */
         // TODO: Add a way to position schematics within the instance.
@@ -140,7 +141,6 @@ public class SchematicChunkLoader implements IChunkLoader {
          * @param x The x offset.
          * @param y The y offset.
          * @param z The z offset.
-         *
          * @return This builder.
          */
         @Contract("_,_,_ -> this")
@@ -155,7 +155,6 @@ public class SchematicChunkLoader implements IChunkLoader {
          * Specifies the handler to use to save the chunks.
          *
          * @param handler The handler.
-         *
          * @return This builder.
          */
         @Contract("_ -> this")

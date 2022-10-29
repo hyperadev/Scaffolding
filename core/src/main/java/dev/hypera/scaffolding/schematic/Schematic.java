@@ -23,10 +23,8 @@
 package dev.hypera.scaffolding.schematic;
 
 import dev.hypera.scaffolding.region.Region;
-import java.util.concurrent.CompletableFuture;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.AbsoluteBlockBatch;
 import net.minestom.server.instance.block.Block;
@@ -36,10 +34,12 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * A parsed schematic.
  */
-@SuppressWarnings({ "unused", "UnstableApiUsage" })
+@SuppressWarnings({"unused", "UnstableApiUsage"})
 public final class Schematic implements Block.Setter {
 
     private short[] blocks;
@@ -74,7 +74,6 @@ public final class Schematic implements Block.Setter {
      * Copies blocks from the given region into this schematic.
      *
      * @param region the {@link Region} to copy from
-     *
      * @return a {@link CompletableFuture<Schematic>} that will complete once all blocks have been copied
      */
     public @NotNull CompletableFuture<Schematic> copy(@NotNull Region region) {
@@ -131,7 +130,6 @@ public final class Schematic implements Block.Setter {
      * @param x block x coordinate
      * @param y block y coordinate
      * @param z block z coordinate
-     *
      * @return the index of the block at the given coordinates
      */
     public int getBlockIndex(int x, int y, int z) {
@@ -143,7 +141,6 @@ public final class Schematic implements Block.Setter {
      *
      * @param instance the {@link Instance} to build this schematic in
      * @param position the {@link Point} to build this schematic at (note: the schematics offset will be applied to this position to get the lower corner)
-     *
      * @return a {@link CompletableFuture<Schematic>} that will complete once the schematic has been built
      */
     public @NotNull CompletableFuture<Region> build(@NotNull Instance instance, @NotNull Point position) {
@@ -158,7 +155,6 @@ public final class Schematic implements Block.Setter {
      * @param flipX    whether to flip the schematic along the X axis
      * @param flipY    whether to flip the schematic along the Y axis
      * @param flipZ    whether to flip the schematic along the Z axis
-     *
      * @return a {@link CompletableFuture<Schematic>} that will complete once the schematic has been built
      */
     public @NotNull CompletableFuture<Region> build(@NotNull Instance instance, @NotNull Point position, boolean flipX, boolean flipY, boolean flipZ) {
@@ -184,7 +180,6 @@ public final class Schematic implements Block.Setter {
     /**
      * @param instance the {@link Instance} to check
      * @param position the {@link Point} to check
-     *
      * @return the {@link Region} that this schematic would take up if placed at the given position
      */
     public @NotNull Region getContainingRegion(@NotNull Instance instance, @NotNull Point position) {
@@ -202,7 +197,6 @@ public final class Schematic implements Block.Setter {
      * Applies the schematic to the given block setter.
      *
      * @param setter the block setter
-     *
      * @deprecated See {@link Schematic#apply(Point, boolean, boolean, boolean, Setter)}
      */
     @Deprecated
@@ -247,7 +241,6 @@ public final class Schematic implements Block.Setter {
      * @param x block x coordinate
      * @param y block y coordinate
      * @param z block z coordinate
-     *
      * @return the block at the given coordinates
      */
     @Nullable
@@ -259,7 +252,6 @@ public final class Schematic implements Block.Setter {
      * @param x block x coordinate
      * @param y block y coordinate
      * @param z block z coordinate
-     *
      * @return the state ID at the given coordinates
      */
     public short getStateId(int x, int y, int z) {
@@ -407,7 +399,6 @@ public final class Schematic implements Block.Setter {
     /**
      * @param instance the {@link Instance} to check
      * @param position the {@link Point} to check
-     *
      * @return {@code true} if the given position is within the bounds of the given instance, {@code false} otherwise. If either the instance or the position is null, false is returned.
      */
     public boolean isPlaceable(@Nullable Instance instance, @Nullable Point position) {

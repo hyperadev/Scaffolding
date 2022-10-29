@@ -22,15 +22,16 @@
  */
 package dev.hypera.scaffolding.schematic.readers;
 
-import dev.hypera.scaffolding.schematic.NBTSchematicReader;
 import dev.hypera.scaffolding.schematic.LegacyLookup;
+import dev.hypera.scaffolding.schematic.NBTSchematicReader;
 import dev.hypera.scaffolding.schematic.Schematic;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
+
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 /**
  * A parser for MCEdit schematics. (.schematic files)

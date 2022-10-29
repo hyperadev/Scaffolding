@@ -23,6 +23,19 @@
 group = "dev.hypera"
 version = "0.2.0-SNAPSHOT"
 
+//Minestom
+val minestomVersion by extra("7be96b7679")
+
+//Gson
+val gsonVersion by extra("2.9.0")
+
+//Fast Utililities
+val fastUtilVersion by extra("2.0.1")
+
+//Jupiter Testing
+val jupiterAPIVersion by extra("5.8.2")
+val jupiterEngineVersion by extra("5.8.2")
+
 allprojects {
     repositories {
         mavenCentral()
