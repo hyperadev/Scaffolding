@@ -24,7 +24,7 @@ group = "dev.hypera"
 version = "0.2.0-SNAPSHOT"
 
 //Minestom
-val minestomVersion by extra("7be96b7679")
+val minestomVersion by extra("-SNAPSHOT")
 
 //Gson
 val gsonVersion by extra("2.9.0")
