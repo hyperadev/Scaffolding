@@ -41,6 +41,12 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${rootProject.extra["jupiterEngineVersion"]}")
 }
 
+tasks {
+    compileJava {
+        options.encoding = "UTF-8"
+    }
+}
+
 publishing {
     publications.create<MavenPublication>("maven") {
         from(components["java"])

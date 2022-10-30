@@ -22,16 +22,22 @@
  */
 package dev.hypera.scaffolding.schematic;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
 import dev.hypera.scaffolding.Scaffolding;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -44,17 +50,28 @@ import java.util.Objects;
 @Internal
 public final class LegacyLookup {
 
-    private static final @NotNull String LEGACY_FILE_NAME = "legacy.json";
-    private static final @NotNull Map<Integer, Short> LEGACY_LOOKUP = new HashMap<>();
+    private static final @NotNull String LEGACY_FILE_NAME = "/legacy.json";
+    private static final @NotNull Int2ObjectMap<Short> LEGACY_LOOKUP = new Int2ObjectOpenHashMap<>();
+    private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(LegacyLookup.class);
 
     static {
-        try (BufferedReader reader = Files.newBufferedReader(Path.of(Objects.requireNonNull(Scaffolding.class.getClassLoader().getResource(LEGACY_FILE_NAME)).toURI()))) {
-            JsonParser.parseReader(reader).getAsJsonArray().forEach(data -> {
-                JsonObject object = data.getAsJsonObject();
-                LEGACY_LOOKUP.put(getLookupId(object.get("block").getAsInt(), object.get("data").getAsByte()), object.get("state").getAsShort());
-            });
-        } catch (IOException | URISyntaxException ex) {
-            ex.printStackTrace();
+        LOGGER.info(LegacyLookup.class.getResource(LEGACY_FILE_NAME).getFile());
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(LegacyLookup.class.getResourceAsStream(LEGACY_FILE_NAME), StandardCharsets.UTF_8))) {
+            JsonArray obj = JsonParser.parseReader(reader).getAsJsonArray();
+
+
+            for (JsonElement jsonElement : obj) {
+                JsonObject object = jsonElement.getAsJsonObject();
+
+                LEGACY_LOOKUP.computeIfAbsent(
+                        getLookupId(object.get("block").getAsInt(), object.get("data").getAsByte()
+                        ),
+                        integer -> object.get("state").getAsShort()
+                );
+            }
+            LOGGER.info("Loaded legacy data.");
+        } catch (IOException e) {
+            LOGGER.error("Error while initializing Legacy data", e);
         }
     }
 

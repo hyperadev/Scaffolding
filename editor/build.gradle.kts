@@ -31,6 +31,11 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+tasks {
+    compileJava {
+        options.encoding = "UTF-8"
+    }
+}
 
 dependencies {
     implementation(project(":core"))

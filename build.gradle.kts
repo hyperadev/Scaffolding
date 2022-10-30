@@ -36,9 +36,22 @@ val fastUtilVersion by extra("2.0.1")
 val jupiterAPIVersion by extra("5.8.2")
 val jupiterEngineVersion by extra("5.8.2")
 
+plugins {
+    `java-library`
+}
+
 allprojects {
     repositories {
         mavenCentral()
         maven("https://jitpack.io/")
+    }
+
+
+
+}
+
+tasks {
+    compileJava {
+        options.encoding = "UTF-8"
     }
 }

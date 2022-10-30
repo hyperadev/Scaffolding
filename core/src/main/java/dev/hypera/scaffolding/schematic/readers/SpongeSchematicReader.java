@@ -46,7 +46,8 @@ public class SpongeSchematicReader extends NBTSchematicReader {
     @Override
     public boolean isReadable(@NotNull NBTCompound compound) {
         // TODO: Improve this
-        return compound.contains("Palette");
+        int version = compound.contains("Version") ? compound.getAsInt("Version") : 0;
+        return compound.contains("Palette") || version < 2;
     }
 
     @Override

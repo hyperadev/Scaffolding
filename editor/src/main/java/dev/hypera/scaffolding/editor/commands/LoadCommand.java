@@ -37,6 +37,9 @@ import org.jglrxavpok.hephaistos.nbt.NBTException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 public class LoadCommand extends Command {
@@ -65,9 +68,10 @@ public class LoadCommand extends Command {
 
                     Scaffolding.fromFile(ScaffoldingEditor.SCHEMATICS_PATH.resolve(schematicName).toFile(), clipboard.getSchematic()).thenRun(() -> {
                         player.sendMessage(Component.text("Loaded schematic " + schematicName, NamedTextColor.GRAY));
-                    });
-                } catch (IOException | NBTException e) {
-                    player.sendMessage("Failed to load schematic");
+                    }).get(2, TimeUnit.SECONDS);
+                } catch (IOException | NBTException | ExecutionException | InterruptedException | TimeoutException e) {
+                    player.sendMessage("Failed to load schematic" + e.getLocalizedMessage());
+                    e.printStackTrace();
                 }
             }
         }, nameArgument);

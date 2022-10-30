@@ -35,6 +35,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * A parsed schematic.
@@ -48,7 +50,8 @@ public final class Schematic implements Block.Setter {
     private int offsetX, offsetY, offsetZ;
     private int area;
 
-    private boolean locked;
+    private final AtomicBoolean locked = new AtomicBoolean();
+
 
     /**
      * Constructs a new schematic. The schematic will be locked and have an area of 0.
@@ -103,7 +106,7 @@ public final class Schematic implements Block.Setter {
                 }
             }
 
-            locked = false;
+            locked.set(false);
             return this;
         });
     }
@@ -158,7 +161,7 @@ public final class Schematic implements Block.Setter {
      * @return a {@link CompletableFuture<Schematic>} that will complete once the schematic has been built
      */
     public @NotNull CompletableFuture<Region> build(@NotNull Instance instance, @NotNull Point position, boolean flipX, boolean flipY, boolean flipZ) {
-        if (locked) {
+        if (locked.get()) {
             throw new IllegalStateException("Cannot build a locked schematic.");
         }
 
@@ -214,7 +217,7 @@ public final class Schematic implements Block.Setter {
      * @param setter   the {@link Block.Setter} to apply this schematic to
      */
     public void apply(@NotNull Point position, boolean flipX, boolean flipY, boolean flipZ, @NotNull Block.Setter setter) {
-        if (locked) {
+        if (locked.get()) {
             throw new IllegalStateException("Cannot apply a locked schematic.");
         }
 
@@ -266,7 +269,7 @@ public final class Schematic implements Block.Setter {
      * @param flipZ    whether to flip the schematic along the Z axis
      */
     public void fork(@NotNull GenerationUnit unit, @NotNull Point position, boolean flipX, boolean flipY, boolean flipZ) {
-        if (locked) {
+        if (locked.get()) {
             throw new IllegalStateException("Cannot fork a locked schematic.");
         }
 
@@ -366,7 +369,7 @@ public final class Schematic implements Block.Setter {
      * @return true if this schematic is locked, false otherwise
      */
     public boolean isLocked() {
-        return locked;
+        return locked.getAcquire();
     }
 
     /**
@@ -375,7 +378,7 @@ public final class Schematic implements Block.Setter {
      * @param locked whether to lock this schematic
      */
     public void setLocked(boolean locked) {
-        this.locked = locked;
+        this.locked.setRelease(locked);
     }
 
     /**
