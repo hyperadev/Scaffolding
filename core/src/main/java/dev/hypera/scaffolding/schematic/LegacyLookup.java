@@ -55,7 +55,6 @@ public final class LegacyLookup {
     private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(LegacyLookup.class);
 
     static {
-        LOGGER.info(LegacyLookup.class.getResource(LEGACY_FILE_NAME).getFile());
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(LegacyLookup.class.getResourceAsStream(LEGACY_FILE_NAME), StandardCharsets.UTF_8))) {
             JsonArray obj = JsonParser.parseReader(reader).getAsJsonArray();
 
