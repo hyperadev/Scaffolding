@@ -35,6 +35,7 @@ import java.util.function.BiFunction;
 
 /**
  * Represents a rectangle 3 dimensional region of blocks within an {@link Instance}.
+ *
  */
 public final class Region {
 
@@ -48,6 +49,7 @@ public final class Region {
      * @param instance The instance that the region is in.
      * @param p1       The first point of the region.
      * @param p2       The second point of the region.
+     *
      */
     public Region(@NotNull Instance instance, @NotNull Point p1, @NotNull Point p2) {
         this.instance = Objects.requireNonNull(instance);
@@ -60,6 +62,7 @@ public final class Region {
      * Force loads all {@link Chunk}s this region.
      *
      * @return a {@link CompletableFuture<Region>} that will complete once all chunks in the region have been loaded. The future will give the region as the result so that you can chain it.
+     *
      */
     public @NotNull CompletableFuture<Region> loadChunks() {
         int lengthX = getUpperChunkX() - getLowerChunkX() + 1;
@@ -80,6 +83,7 @@ public final class Region {
 
     /**
      * @return the width of this region.
+     *
      */
     public int getWidth() {
         return (upper.blockX() - lower.blockX()) + 1;
@@ -87,6 +91,7 @@ public final class Region {
 
     /**
      * @return the height of this region.
+     *
      */
     public int getHeight() {
         return (upper.blockY() - lower.blockY()) + 1;
@@ -94,6 +99,7 @@ public final class Region {
 
     /**
      * @return the length of this region.
+     *
      */
     public int getLength() {
         return (upper.blockZ() - lower.blockZ()) + 1;
@@ -101,6 +107,7 @@ public final class Region {
 
     /**
      * @return the x coordinate of the upper {@link Chunk} of this region.
+     *
      */
     @Contract(pure = true)
     public int getUpperChunkX() {
@@ -109,6 +116,7 @@ public final class Region {
 
     /**
      * @return the z coordinate of the upper {@link Chunk} of this region.
+     *
      */
     @Contract(pure = true)
     public int getUpperChunkZ() {
@@ -117,6 +125,7 @@ public final class Region {
 
     /**
      * @return the x coordinate of the lower {@link Chunk} of this region.
+     *
      */
     @Contract(pure = true)
     public int getLowerChunkX() {
@@ -125,6 +134,7 @@ public final class Region {
 
     /**
      * @return the z coordinate of the lower {@link Chunk} of this region.
+     *
      */
     @Contract(pure = true)
     public int getLowerChunkZ() {
@@ -133,6 +143,7 @@ public final class Region {
 
     /**
      * @return the number of {@link Chunk}s along the x coordinate of this region.
+     *
      */
     @Contract(pure = true)
     public int getChunkSizeX() {
@@ -141,6 +152,7 @@ public final class Region {
 
     /**
      * @return the number of {@link Chunk}s along the z coordinate of this region.
+     *
      */
     @Contract(pure = true)
     public int getChunkSizeZ() {
@@ -149,6 +161,7 @@ public final class Region {
 
     /**
      * @return the instance that this region is in
+     *
      */
     @Contract(pure = true)
     public @NotNull Instance getInstance() {
@@ -157,6 +170,7 @@ public final class Region {
 
     /**
      * @return the upper {@link Point} of this region.
+     *
      */
     @Contract(pure = true)
     public @NotNull Point getUpper() {
@@ -165,6 +179,7 @@ public final class Region {
 
     /**
      * @return the lower {@link Point} of this region.
+     *
      */
     @Contract(pure = true)
     public @NotNull Point getLower() {

@@ -38,7 +38,10 @@ import net.minestom.server.particle.Particle;
 import net.minestom.server.particle.ParticleCreator;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.time.TimeUnit;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.logging.Logger;
 
 public class Clipboard {
 
@@ -46,16 +49,17 @@ public class Clipboard {
     public static final Component SECOND_POINT_COMPONENT = Component.text("Second point", NamedTextColor.AQUA);
 
     private final Player player;
+
     private final Task drawParticlesTask;
 
     private final Schematic schematic = new Schematic();
 
-    private Point firstPoint, secondPoint;
+    private Point firstPoint, secondPoint, firstPointSet, secondPointSet;
     private Hologram firstPointHologram, secondPointHologram;
 
     public Clipboard(Player player) {
         this.player = player;
-        drawParticlesTask = MinecraftServer.getSchedulerManager().buildTask(this::drawSelection).repeat(50, TimeUnit.MILLISECOND).schedule();
+        this.drawParticlesTask = MinecraftServer.getSchedulerManager().buildTask(this::drawSelection).repeat(150, TimeUnit.MILLISECOND).schedule();
     }
 
     public boolean hasValidSelection() {
@@ -72,7 +76,9 @@ public class Clipboard {
     public void drawSelection() {
         Region region = createRegionFromSelection();
 
-        if (region == null) return;
+        if (region == null) {
+            return;
+        }
 
         Point lower = region.getLower();
         Point upper = region.getUpper().add(1);
@@ -87,20 +93,23 @@ public class Clipboard {
         Vec p7 = new Vec(upper.x(), upper.y(), upper.z());
         Vec p8 = new Vec(lower.x(), upper.y(), upper.z());
 
-        drawLine(player, Particle.CRIT, p1, p2);
-        drawLine(player, Particle.CRIT, p2, p3);
-        drawLine(player, Particle.CRIT, p3, p4);
-        drawLine(player, Particle.CRIT, p4, p1);
+        Particle p = Particle.REVERSE_PORTAL;
 
-        drawLine(player, Particle.CRIT, p5, p6);
-        drawLine(player, Particle.CRIT, p6, p7);
-        drawLine(player, Particle.CRIT, p7, p8);
-        drawLine(player, Particle.CRIT, p8, p5);
 
-        drawLine(player, Particle.CRIT, p1, p5);
-        drawLine(player, Particle.CRIT, p2, p6);
-        drawLine(player, Particle.CRIT, p3, p7);
-        drawLine(player, Particle.CRIT, p4, p8);
+        drawLine(player, p, p1, p2);
+        drawLine(player, p, p2, p3);
+        drawLine(player, p, p3, p4);
+        drawLine(player, p, p4, p1);
+
+        drawLine(player, p, p5, p6);
+        drawLine(player, p, p6, p7);
+        drawLine(player, p, p7, p8);
+        drawLine(player, p, p8, p5);
+
+        drawLine(player, p, p1, p5);
+        drawLine(player, p, p2, p6);
+        drawLine(player, p, p3, p7);
+        drawLine(player, p, p4, p8);
     }
 
     private void drawLine(Player player, Particle particle, Point p1, Point p2) {
@@ -108,8 +117,9 @@ public class Clipboard {
         final Vec v2 = Vec.fromPoint(p2);
 
         Vec direction = v2.sub(v1).normalize();
+        double repeat = v1.distance(v2) / 4;
 
-        for (Vec position = v1; position.sub(v2).dot(direction) < 0; position = position.add(direction.mul(0.2d))) {
+        for (Vec position = v1; position.sub(v2).dot(direction) < 0; position = position.add(direction.mul(repeat))) {
             ParticlePacket packet = ParticleCreator.createParticlePacket(particle, true, position.x(), position.y(), position.z(), 0, 0, 0, 0, 1, null);
             player.sendPacket(packet);
         }
@@ -120,12 +130,98 @@ public class Clipboard {
     }
 
     public void setFirstPoint(Point firstPoint) {
-        this.firstPoint = firstPoint;
+        boolean isOverride = this.firstPointSet != null && this.firstPointSet.samePoint(firstPoint);
+        this.firstPointSet = firstPoint;
 
-        if (firstPointHologram != null) firstPointHologram.remove();
-        firstPointHologram = createHologram(firstPoint, FIRST_POINT_COMPONENT);
+        //Setting
+        if(this.firstPoint == null) {
+            //set
+            this.firstPoint = firstPoint;
 
-        player.sendMessage(Component.text("Set ", NamedTextColor.GRAY).append(FIRST_POINT_COMPONENT));
+            //Creating hologram
+            if (firstPointHologram != null) firstPointHologram.remove();
+            firstPointHologram = createHologram(firstPoint, FIRST_POINT_COMPONENT);
+
+            //Starting animation
+            this.drawParticlesTask.unpark();
+
+
+            player.sendMessage("Setzen");
+            return;
+        }
+        if(this.firstPoint.samePoint(firstPoint)) {
+            //Entfernen
+            if (firstPointHologram != null) firstPointHologram.remove();
+            this.firstPoint = null;
+
+            player.sendMessage("entfernen");
+            return;
+        }
+        //Replace
+        if(this.firstPoint != null) {
+            player.sendMessage("Double click the same location for override");
+
+            //Double clicked location
+            if(isOverride) {
+                player.sendMessage("Overriden!");
+                this.firstPoint = firstPoint;
+
+                //Create hologram
+                if (firstPointHologram != null) firstPointHologram.remove();
+                firstPointHologram = createHologram(firstPoint, FIRST_POINT_COMPONENT);
+
+                //Start animation
+                this.drawParticlesTask.unpark();
+            }
+        }
+    }
+
+    public void setSecondPoint(Point secondPoint) {
+        boolean isOverride = this.secondPointSet != null && this.secondPointSet.samePoint(secondPoint);
+        this.secondPointSet = secondPoint;
+
+        //Setting
+        if(this.secondPoint == null) {
+            //set
+            this.secondPoint = secondPoint;
+
+            //Creating hologram
+            if (secondPointHologram != null) secondPointHologram.remove();
+            secondPointHologram = createHologram(secondPoint, SECOND_POINT_COMPONENT);
+
+            //Starting animation
+            if(this.drawParticlesTask != null) {
+                this.drawParticlesTask.unpark();
+            }
+
+            player.sendMessage("Setzen");
+            return;
+        }
+        if(this.secondPoint.samePoint(secondPoint)) {
+            //Entfernen
+            if (secondPointHologram != null) secondPointHologram.remove();
+            this.secondPoint = null;
+
+            player.sendMessage("entfernen");
+            return;
+        }
+        //Replace
+        if(this.secondPoint != null) {
+            player.sendMessage("Double click the same location for override");
+
+            //Double clicked location
+            if(isOverride) {
+                player.sendMessage("Overriden!");
+                this.secondPoint = secondPoint;
+
+                //Create hologram
+                if (secondPointHologram != null) secondPointHologram.remove();
+                secondPointHologram = createHologram(secondPoint, SECOND_POINT_COMPONENT);
+
+                //Start animation
+                this.drawParticlesTask.unpark();
+            }
+        }
     }
 
     private Hologram createHologram(Point position, Component text) {
@@ -139,20 +235,11 @@ public class Clipboard {
         return secondPoint;
     }
 
-    public void setSecondPoint(Point secondPoint) {
-        this.secondPoint = secondPoint;
-
-        if (secondPointHologram != null) secondPointHologram.remove();
-        secondPointHologram = createHologram(secondPoint, SECOND_POINT_COMPONENT);
-
-        player.sendMessage(Component.text("Set ", NamedTextColor.GRAY).append(SECOND_POINT_COMPONENT));
-    }
-
     public Schematic getSchematic() {
         return schematic;
     }
 
     public void cleanup() {
-        drawParticlesTask.cancel();
+        this.drawParticlesTask.cancel();
     }
 }

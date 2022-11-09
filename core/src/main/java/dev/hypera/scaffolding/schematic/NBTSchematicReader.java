@@ -39,6 +39,7 @@ public abstract class NBTSchematicReader {
      *
      * @param compound The {@link NBTCompound} to check
      * @return whether this reader can read the provided tag.
+     *
      */
     public abstract boolean isReadable(@NotNull NBTCompound compound);
 
@@ -49,6 +50,7 @@ public abstract class NBTSchematicReader {
      * @param schematic The {@link Schematic} to read into
      * @return a {@link CompletableFuture<Schematic>} that will be completed with the {@link Schematic}
      * @throws NBTException If the provided NBT tag is invalid
+     *
      */
     public abstract CompletableFuture<Schematic> read(@NotNull NBTCompound compound, @NotNull Schematic schematic) throws NBTException;
 
@@ -58,6 +60,7 @@ public abstract class NBTSchematicReader {
      * @param exceptionMessage The exception message to throw if the key is not found
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
+     *
      */
     protected final int getInteger(@NotNull NBTCompound compound, @NotNull String key, String exceptionMessage) throws NBTException {
         Integer value = compound.getInt(key);
@@ -74,6 +77,7 @@ public abstract class NBTSchematicReader {
      * @param exceptionMessage The exception message to throw if the key is not found
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
+     *
      */
     protected final short getShort(@NotNull NBTCompound compound, @NotNull String key, String exceptionMessage) throws NBTException {
         Short value = compound.getShort(key);
@@ -90,6 +94,7 @@ public abstract class NBTSchematicReader {
      * @param exceptionMessage The exception message to throw if the key is not found
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
+     *
      */
     protected final NBTCompound getCompound(@NotNull NBTCompound compound, @NotNull String key, String exceptionMessage) throws NBTException {
         NBTCompound value = compound.getCompound(key);
@@ -106,6 +111,7 @@ public abstract class NBTSchematicReader {
      * @param exceptionMessage The exception message to throw if the key is not found
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
+     *
      */
     protected final byte getByte(@NotNull NBTCompound compound, @NotNull String key, String exceptionMessage) throws NBTException {
         Byte value = compound.getByte(key);
@@ -122,6 +128,7 @@ public abstract class NBTSchematicReader {
      * @param exceptionMessage The exception message to throw if the key is not found
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
+     *
      */
     protected final byte[] getByteArray(@NotNull NBTCompound compound, @NotNull String key, String exceptionMessage) throws NBTException {
         ImmutableByteArray value = compound.getByteArray(key);
@@ -138,6 +145,7 @@ public abstract class NBTSchematicReader {
      * @param exceptionMessage The exception message to throw if the key is not found
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
+     *
      */
     protected final boolean getBoolean(@NotNull NBTCompound compound, @NotNull String key, String exceptionMessage) throws NBTException {
         Boolean value = compound.getBoolean(key);
@@ -154,6 +162,7 @@ public abstract class NBTSchematicReader {
      * @param exceptionMessage The exception message to throw if the key is not found
      * @return The value of the key
      * @throws NBTException If the provided NBT tag is invalid
+     *
      */
     protected final String getString(@NotNull NBTCompound compound, @NotNull String key, String exceptionMessage) throws NBTException {
         String value = compound.getString(key);

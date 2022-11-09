@@ -25,10 +25,15 @@ package dev.hypera.scaffolding.editor.commands;
 import dev.hypera.scaffolding.editor.Clipboard;
 import dev.hypera.scaffolding.editor.ScaffoldingEditor;
 import dev.hypera.scaffolding.schematic.Schematic;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.Instance;
+
+import java.text.DecimalFormat;
+import java.util.concurrent.CompletableFuture;
 
 public class PasteCommand extends Command {
 
@@ -37,11 +42,13 @@ public class PasteCommand extends Command {
 
         setDefaultExecutor((sender, context) -> {
             if ((sender instanceof Player player)) {
+                CompletableFuture<Long> ms = CompletableFuture.completedFuture(System.currentTimeMillis());
                 Clipboard clipboard = ScaffoldingEditor.getClipboard(player);
                 Schematic schematic = clipboard.getSchematic();
 
                 Instance instance = player.getInstance();
                 Pos placementPosition = player.getPosition();
+
 
                 if (instance == null) {
                     player.sendMessage("You are not in an instance. This should probably not happen...");
@@ -58,7 +65,18 @@ public class PasteCommand extends Command {
                     return;
                 }
 
-                schematic.build(instance, placementPosition).thenRunAsync(() -> player.sendMessage("Schematic pasted"));
+                schematic.build(instance, placementPosition).whenCompleteAsync((region, throwable) -> {
+                    if(throwable != null) {
+                        player.sendMessage(Component.text("Error while pasting schematic: " + throwable.getLocalizedMessage()));
+                        throwable.printStackTrace();
+                        return;
+                    }
+
+                    String formatted = DecimalFormat.getInstance().format((System.currentTimeMillis() - ms.join()) / 1000.0);
+                    player.sendMessage(Component
+                            .text("Pasted schematic with blocks: " + clipboard.getSchematic().getArea() + " in seconds: " + formatted, NamedTextColor.GRAY)
+                    );
+                });
             }
         });
     }

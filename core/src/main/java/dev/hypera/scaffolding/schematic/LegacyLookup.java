@@ -22,27 +22,22 @@
  */
 package dev.hypera.scaffolding.schematic;
 
-import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
-import dev.hypera.scaffolding.Scaffolding;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.URISyntaxException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * A static utility class containing useful methods used throughout Scaffolding.
@@ -54,8 +49,10 @@ public final class LegacyLookup {
     private static final @NotNull Int2ObjectMap<Short> LEGACY_LOOKUP = new Int2ObjectOpenHashMap<>();
     private static final @NotNull Logger LOGGER = LoggerFactory.getLogger(LegacyLookup.class);
 
+    // Loading data on access
+    // TODO: Maybe loading data on program start for faster schematic loading
     static {
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(LegacyLookup.class.getResourceAsStream(LEGACY_FILE_NAME), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(LegacyLookup.class.getResourceAsStream(LEGACY_FILE_NAME), StandardCharsets.UTF_8))) {
             JsonArray obj = JsonParser.parseReader(reader).getAsJsonArray();
 
 
@@ -74,7 +71,9 @@ public final class LegacyLookup {
         }
     }
 
+
     private LegacyLookup() {
+        throw new UnsupportedOperationException();
     }
 
 
@@ -82,7 +81,9 @@ public final class LegacyLookup {
      * @param legacyBlockId   The legacy block ID
      * @param legacyBlockData The legacy block data
      * @return The modern state ID for the given legacy block ID and data
+     *
      */
+
     public static short stateIdFromLegacy(int legacyBlockId, byte legacyBlockData) {
         return LEGACY_LOOKUP.get(getLookupId(legacyBlockId, legacyBlockData));
     }
@@ -94,6 +95,7 @@ public final class LegacyLookup {
      * @param legacyBlockId   the legacy block ID
      * @param legacyBlockData the legacy block data
      * @return the lookup ID
+     *
      */
     @Contract(pure = true)
     private static int getLookupId(int legacyBlockId, byte legacyBlockData) {

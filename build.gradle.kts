@@ -45,9 +45,6 @@ allprojects {
         mavenCentral()
         maven("https://jitpack.io/")
     }
-
-
-
 }
 
 tasks {

@@ -106,6 +106,7 @@ public class SchematicChunkLoader implements IChunkLoader {
          *
          * @param schematic The schematic to add.
          * @return This builder.
+         *
          */
         // TODO: Add a way to position schematics within the instance.
         @Contract("_ -> this")
@@ -121,6 +122,7 @@ public class SchematicChunkLoader implements IChunkLoader {
          * @param y The y offset.
          * @param z The z offset.
          * @return This builder.
+         *
          */
         @Contract("_,_,_ -> this")
         public @NotNull Builder offset(int x, int y, int z) {
@@ -135,6 +137,7 @@ public class SchematicChunkLoader implements IChunkLoader {
          *
          * @param handler The handler.
          * @return This builder.
+         *
          */
         @Contract("_ -> this")
         public @NotNull Builder saveHandler(@NotNull Function<@NotNull Chunk, @NotNull CompletableFuture<Void>> handler) {

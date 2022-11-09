@@ -25,6 +25,7 @@ package dev.hypera.scaffolding.editor;
 import dev.hypera.scaffolding.editor.commands.CopyCommand;
 import dev.hypera.scaffolding.editor.commands.LoadCommand;
 import dev.hypera.scaffolding.editor.commands.PasteCommand;
+import dev.hypera.scaffolding.editor.commands.SaveCommand;
 import dev.hypera.scaffolding.editor.features.SelectionFeature;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -72,12 +73,13 @@ public class ScaffoldingEditor {
         commandManager.register(new LoadCommand());
         commandManager.register(new CopyCommand());
         commandManager.register(new PasteCommand());
+        commandManager.register(new SaveCommand());
 
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
         globalEventHandler.addListener(PlayerLoginEvent.class, event -> {
             Player player = event.getPlayer();
 
-            clipboards.put(player, new Clipboard(player));
+            clipboards.computeIfAbsent(player,Clipboard::new);
             player.setRespawnPoint(new Pos(0, 6, 0));
             event.setSpawningInstance(instance);
         });
