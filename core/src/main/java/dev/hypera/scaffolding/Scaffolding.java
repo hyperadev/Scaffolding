@@ -26,41 +26,47 @@ import dev.hypera.scaffolding.schematic.NBTSchematicReader;
 import dev.hypera.scaffolding.schematic.Schematic;
 import dev.hypera.scaffolding.schematic.readers.MCEditSchematicReader;
 import dev.hypera.scaffolding.schematic.readers.SpongeSchematicReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.concurrent.CompletableFuture;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jglrxavpok.hephaistos.nbt.CompressedProcesser;
 import org.jglrxavpok.hephaistos.nbt.NBTCompound;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
 import org.jglrxavpok.hephaistos.nbt.NBTReader;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
 /**
  * A static utility class primarily used to parse schematics.
  */
 @SuppressWarnings("unused")
 public final class Scaffolding {
+    private static final ObjectArrayList<NBTSchematicReader> MC_SCHEMATIC_READERS;
 
-    private static final @NotNull NBTSchematicReader MC_EDIT_SCHEMATIC_READER = new MCEditSchematicReader();
-    private static final @NotNull NBTSchematicReader SPONGE_SCHEMATIC_READER = new SpongeSchematicReader();
 
-    private Scaffolding() {}
+    static {
+        MC_SCHEMATIC_READERS = new ObjectArrayList<>();
+
+        MC_SCHEMATIC_READERS.add(new MCEditSchematicReader());
+        MC_SCHEMATIC_READERS.add(new SpongeSchematicReader());
+    }
+
+    private Scaffolding() {
+    }
 
 
     /**
      * Automatically detects the type of schematic and parses the file.
      *
      * @param path Schematic path
-     *
      * @return parsed schematic
      * @throws IOException              if the file is invalid
      * @throws NBTException             if the schematic is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
+     *
      */
     public static @NotNull CompletableFuture<Schematic> fromPath(@NotNull Path path) throws IOException, NBTException, IllegalArgumentException {
         return fromPath(path, new Schematic());
@@ -69,10 +75,10 @@ public final class Scaffolding {
     /**
      * @param path      the {@link Path} to read from
      * @param schematic the {@link Schematic} to load the data into
-     *
      * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
      * @throws IOException  if the file is invalid
      * @throws NBTException if the NBT tag is invalid
+     *
      */
     public static @NotNull CompletableFuture<Schematic> fromPath(@NotNull Path path, @NotNull Schematic schematic) throws IOException, NBTException {
         if (!Files.exists(path)) throw new FileNotFoundException("Invalid Schematic: File does not exist");
@@ -84,11 +90,11 @@ public final class Scaffolding {
      * Automatically detects the type of schematic and parses the file.
      *
      * @param file Schematic file
-     *
      * @return parsed schematic
      * @throws IOException              if the file is invalid
      * @throws NBTException             if the schematic is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
+     *
      */
     public static @NotNull CompletableFuture<Schematic> fromFile(@NotNull File file) throws IOException, NBTException, IllegalArgumentException {
         return fromFile(file, new Schematic());
@@ -97,10 +103,10 @@ public final class Scaffolding {
     /**
      * @param file      the {@link File} to read from
      * @param schematic the {@link Schematic} to load the data into
-     *
      * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
      * @throws IOException  if the file is invalid
      * @throws NBTException if the NBT tag is invalid
+     *
      */
     public static @NotNull CompletableFuture<Schematic> fromFile(@NotNull File file, @NotNull Schematic schematic) throws IOException, NBTException {
         if (!file.exists()) throw new FileNotFoundException("Invalid Schematic: File does not exist");
@@ -112,11 +118,11 @@ public final class Scaffolding {
      * Automatically detects the type of schematic and parses the input stream
      *
      * @param inputStream Schematic input
-     *
      * @return a {@link CompletableFuture<Schematic>} that will contain the schematic once loaded
      * @throws IOException              if the input stream is invalid
      * @throws NBTException             if the schematic is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
+     *
      */
     public static @NotNull CompletableFuture<Schematic> fromStream(@NotNull InputStream inputStream) throws IOException, NBTException, IllegalArgumentException {
         return fromStream(inputStream, new Schematic());
@@ -125,10 +131,10 @@ public final class Scaffolding {
     /**
      * @param inputStream the {@link InputStream} to read from
      * @param schematic   the {@link Schematic} to load the data into
-     *
      * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
      * @throws IOException  if the input stream is invalid
      * @throws NBTException if the NBT tag is invalid
+     *
      */
     public static @NotNull CompletableFuture<Schematic> fromStream(@NotNull InputStream inputStream, @NotNull Schematic schematic) throws IOException, NBTException {
         return fromNBT((NBTCompound) new NBTReader(inputStream, CompressedProcesser.GZIP).read(), schematic);
@@ -139,9 +145,9 @@ public final class Scaffolding {
      * Automatically detects the schematic format from the provided {@link NBTCompound} and parses it.
      *
      * @param nbtTag The {@link NBTCompound} to read from
-     *
      * @return A {@link CompletableFuture<Schematic>} that will complete with the schematic once it's loaded
      * @throws NBTException If the NBT tag is invalid
+     *
      */
     public static @NotNull CompletableFuture<Schematic> fromNBT(@NotNull NBTCompound nbtTag) throws NBTException, IllegalArgumentException {
         return fromNBT(nbtTag, new Schematic());
@@ -150,29 +156,29 @@ public final class Scaffolding {
     /**
      * @param nbtTag    The NBT tag to parse
      * @param schematic The {@link Schematic} to load the data into
-     *
      * @return a {@link CompletableFuture<Schematic>} that will be completed when the schematic is loaded
      * @throws NBTException if the NBT tag is invalid
+     *
      */
     public static @NotNull CompletableFuture<Schematic> fromNBT(@NotNull NBTCompound nbtTag, @NotNull Schematic schematic) throws NBTException {
-        if (MC_EDIT_SCHEMATIC_READER.isReadable(nbtTag)) {
-            return MC_EDIT_SCHEMATIC_READER.read(nbtTag, schematic);
-        } else if (SPONGE_SCHEMATIC_READER.isReadable(nbtTag)) {
-            return SPONGE_SCHEMATIC_READER.read(nbtTag, schematic);
-        } else {
-            throw new IllegalArgumentException("Unknown schematic type");
-        }
-    }
+        Optional<NBTSchematicReader> reader = MC_SCHEMATIC_READERS
+                .stream()
+                .filter(nbtSchematicReader -> nbtSchematicReader.isReadable(nbtTag))
+                .findFirst();
 
+        if (reader.isPresent()) return reader.get().read(nbtTag, schematic);
+
+        throw new NBTException("No valid schematic-reader found.");
+    }
 
 
     /**
      * @param path The {@link Path} to read from
-     *
      * @return The parsed {@link Schematic}
      * @throws IOException              if the file is invalid
      * @throws NBTException             if the schematic is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
+     *
      */
     public static @NotNull Schematic fromPathSync(@NotNull Path path) throws IOException, NBTException, IllegalArgumentException {
         return fromPath(path).join();
@@ -181,10 +187,10 @@ public final class Scaffolding {
     /**
      * @param path      the {@link Path} to read from
      * @param schematic the {@link Schematic} to load the data into
-     *
      * @return the parsed {@link Schematic}
      * @throws IOException  if the file is invalid
      * @throws NBTException if the NBT tag is invalid
+     *
      */
     public static @NotNull Schematic fromPathSync(@NotNull Path path, @NotNull Schematic schematic) throws IOException, NBTException {
         return fromPath(path, schematic).join();
@@ -193,11 +199,11 @@ public final class Scaffolding {
 
     /**
      * @param file The {@link File} to read from
-     *
      * @return The parsed {@link Schematic}
      * @throws IOException              if the file is invalid
      * @throws NBTException             if the schematic is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
+     *
      */
     public static @NotNull Schematic fromFileSync(@NotNull File file) throws IOException, NBTException, IllegalArgumentException {
         return fromFile(file).join();
@@ -206,10 +212,10 @@ public final class Scaffolding {
     /**
      * @param file      the {@link File} to read from
      * @param schematic the {@link Schematic} to load the data into
-     *
      * @return the parsed {@link Schematic}
      * @throws IOException  if the file is invalid
      * @throws NBTException if the NBT tag is invalid
+     *
      */
     public static @NotNull Schematic fromFileSync(@NotNull File file, @NotNull Schematic schematic) throws IOException, NBTException {
         return fromFile(file, schematic).join();
@@ -220,10 +226,10 @@ public final class Scaffolding {
      * Automatically detects the schematic format from the provided {@link NBTCompound} and parses it synchronously.
      *
      * @param nbtTag the {@link NBTCompound} to read from
-     *
      * @return the parsed {@link Schematic}
      * @throws NBTException             if the NBT tag is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
+     *
      */
     public static @NotNull Schematic fromNBTSync(@NotNull NBTCompound nbtTag) throws NBTException, IllegalArgumentException {
         return fromNBT(nbtTag).join();
@@ -232,9 +238,9 @@ public final class Scaffolding {
     /**
      * @param nbtTag    The NBT tag to parse
      * @param schematic The {@link Schematic} to load the data into
-     *
      * @return the parsed {@link Schematic}
      * @throws NBTException if the NBT tag is invalid
+     *
      */
     public static @NotNull Schematic fromNBTSync(@NotNull NBTCompound nbtTag, @NotNull Schematic schematic) throws NBTException {
         return fromNBT(nbtTag, schematic).join();
@@ -243,11 +249,11 @@ public final class Scaffolding {
 
     /**
      * @param inputStream The {@link InputStream} to read from
-     *
      * @return The parsed {@link Schematic}
      * @throws IOException              if the input stream is invalid
      * @throws NBTException             if the schematic is invalid
      * @throws IllegalArgumentException if the schematic is neither an MCEdit nor a Sponge schematic
+     *
      */
     public static @NotNull Schematic fromStreamSync(@NotNull InputStream inputStream) throws IOException, NBTException, IllegalArgumentException {
         return fromStream(inputStream).join();
@@ -256,10 +262,10 @@ public final class Scaffolding {
     /**
      * @param inputStream the {@link InputStream} to read from
      * @param schematic   the {@link Schematic} to load the data into
-     *
      * @return the parsed {@link Schematic}
      * @throws IOException  if the input stream is invalid
      * @throws NBTException if the NBT tag is invalid
+     *
      */
     public static @NotNull Schematic fromStreamSync(@NotNull InputStream inputStream, @NotNull Schematic schematic) throws IOException, NBTException {
         return fromStream(inputStream, schematic).join();

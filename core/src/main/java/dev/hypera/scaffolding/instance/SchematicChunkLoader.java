@@ -1,34 +1,7 @@
-/*
- * Scaffolding - Schematic library for Minestom
- *  Copyright (c) 2022-latest The Scaffolding Library Authors
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the “Software”), to deal
- *  in the Software without restriction, including without limitation the rights
- *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *  copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included in
- *  all copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- *  THE SOFTWARE.
- */
 package dev.hypera.scaffolding.instance;
 
 import dev.hypera.scaffolding.schematic.Schematic;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.DynamicChunk;
@@ -42,7 +15,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.vectrix.flare.fastutil.Long2ObjectSyncMap;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+
 // TODO: Entities?
+//Todo: Implement a working save handler
 @SuppressWarnings("UnstableApiUsage")
 public class SchematicChunkLoader implements IChunkLoader {
 
@@ -114,7 +94,8 @@ public class SchematicChunkLoader implements IChunkLoader {
         private int yOffset;
         private int zOffset;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         /**
          * Adds a schematic to this chunk loader.
@@ -124,8 +105,8 @@ public class SchematicChunkLoader implements IChunkLoader {
          * This means that the last added schematic is the only schematic that is guaranteed to have all its data.
          *
          * @param schematic The schematic to add.
-         *
          * @return This builder.
+         *
          */
         // TODO: Add a way to position schematics within the instance.
         @Contract("_ -> this")
@@ -140,8 +121,8 @@ public class SchematicChunkLoader implements IChunkLoader {
          * @param x The x offset.
          * @param y The y offset.
          * @param z The z offset.
-         *
          * @return This builder.
+         *
          */
         @Contract("_,_,_ -> this")
         public @NotNull Builder offset(int x, int y, int z) {
@@ -155,8 +136,8 @@ public class SchematicChunkLoader implements IChunkLoader {
          * Specifies the handler to use to save the chunks.
          *
          * @param handler The handler.
-         *
          * @return This builder.
+         *
          */
         @Contract("_ -> this")
         public @NotNull Builder saveHandler(@NotNull Function<@NotNull Chunk, @NotNull CompletableFuture<Void>> handler) {

@@ -23,10 +23,8 @@
 package dev.hypera.scaffolding.schematic;
 
 import dev.hypera.scaffolding.region.Region;
-import java.util.concurrent.CompletableFuture;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.AbsoluteBlockBatch;
 import net.minestom.server.instance.block.Block;
@@ -36,21 +34,24 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * A parsed schematic.
  */
-@SuppressWarnings({ "unused", "UnstableApiUsage" })
+@SuppressWarnings({"unused", "UnstableApiUsage"})
 public final class Schematic implements Block.Setter {
 
+    private final AtomicBoolean locked = new AtomicBoolean();
     private short[] blocks;
-
     private int width, height, length;
     private int offsetX, offsetY, offsetZ;
     private int area;
 
-    private boolean locked;
 
     /**
+     *
      * Constructs a new schematic. The schematic will be locked and have an area of 0.
      */
     public Schematic() {
@@ -61,6 +62,7 @@ public final class Schematic implements Block.Setter {
      * Resets this schematic to its original state. This is useful if you want to reuse a schematic multiple times.
      * <br><br>
      * The schematic will be locked after this method is called.
+     *
      */
     public void reset() {
         width = height = length = 0;
@@ -74,8 +76,8 @@ public final class Schematic implements Block.Setter {
      * Copies blocks from the given region into this schematic.
      *
      * @param region the {@link Region} to copy from
-     *
      * @return a {@link CompletableFuture<Schematic>} that will complete once all blocks have been copied
+     *
      */
     public @NotNull CompletableFuture<Schematic> copy(@NotNull Region region) {
         reset();
@@ -104,7 +106,7 @@ public final class Schematic implements Block.Setter {
                 }
             }
 
-            locked = false;
+            locked.set(false);
             return this;
         });
     }
@@ -115,6 +117,7 @@ public final class Schematic implements Block.Setter {
      * @param width  new width
      * @param height new height
      * @param length new length
+     *
      */
     public void setSize(int width, int height, int length) {
         this.width = width;
@@ -131,8 +134,8 @@ public final class Schematic implements Block.Setter {
      * @param x block x coordinate
      * @param y block y coordinate
      * @param z block z coordinate
-     *
      * @return the index of the block at the given coordinates
+     *
      */
     public int getBlockIndex(int x, int y, int z) {
         return y * width * length + z * width + x;
@@ -143,8 +146,8 @@ public final class Schematic implements Block.Setter {
      *
      * @param instance the {@link Instance} to build this schematic in
      * @param position the {@link Point} to build this schematic at (note: the schematics offset will be applied to this position to get the lower corner)
-     *
      * @return a {@link CompletableFuture<Schematic>} that will complete once the schematic has been built
+     *
      */
     public @NotNull CompletableFuture<Region> build(@NotNull Instance instance, @NotNull Point position) {
         return build(instance, position, false, false, false);
@@ -158,11 +161,11 @@ public final class Schematic implements Block.Setter {
      * @param flipX    whether to flip the schematic along the X axis
      * @param flipY    whether to flip the schematic along the Y axis
      * @param flipZ    whether to flip the schematic along the Z axis
-     *
      * @return a {@link CompletableFuture<Schematic>} that will complete once the schematic has been built
+     *
      */
     public @NotNull CompletableFuture<Region> build(@NotNull Instance instance, @NotNull Point position, boolean flipX, boolean flipY, boolean flipZ) {
-        if (locked) {
+        if (locked.get()) {
             throw new IllegalStateException("Cannot build a locked schematic.");
         }
 
@@ -184,8 +187,8 @@ public final class Schematic implements Block.Setter {
     /**
      * @param instance the {@link Instance} to check
      * @param position the {@link Point} to check
-     *
      * @return the {@link Region} that this schematic would take up if placed at the given position
+     *
      */
     public @NotNull Region getContainingRegion(@NotNull Instance instance, @NotNull Point position) {
         return new Region(instance, position.add(offsetX, offsetY, offsetZ), position.add(offsetX + width, offsetY + height, offsetZ + length));
@@ -202,8 +205,8 @@ public final class Schematic implements Block.Setter {
      * Applies the schematic to the given block setter.
      *
      * @param setter the block setter
-     *
      * @deprecated See {@link Schematic#apply(Point, boolean, boolean, boolean, Setter)}
+     *
      */
     @Deprecated
     public void apply(@NotNull Block.Setter setter) {
@@ -218,9 +221,10 @@ public final class Schematic implements Block.Setter {
      * @param flipY    whether to flip the schematic along the Y axis
      * @param flipZ    whether to flip the schematic along the Z axis
      * @param setter   the {@link Block.Setter} to apply this schematic to
+     *
      */
     public void apply(@NotNull Point position, boolean flipX, boolean flipY, boolean flipZ, @NotNull Block.Setter setter) {
-        if (locked) {
+        if (locked.get()) {
             throw new IllegalStateException("Cannot apply a locked schematic.");
         }
 
@@ -247,8 +251,8 @@ public final class Schematic implements Block.Setter {
      * @param x block x coordinate
      * @param y block y coordinate
      * @param z block z coordinate
-     *
      * @return the block at the given coordinates
+     *
      */
     @Nullable
     public Block getBlock(int x, int y, int z) {
@@ -259,7 +263,6 @@ public final class Schematic implements Block.Setter {
      * @param x block x coordinate
      * @param y block y coordinate
      * @param z block z coordinate
-     *
      * @return the state ID at the given coordinates
      */
     public short getStateId(int x, int y, int z) {
@@ -272,9 +275,10 @@ public final class Schematic implements Block.Setter {
      * @param flipX    whether to flip the schematic along the X axis
      * @param flipY    whether to flip the schematic along the Y axis
      * @param flipZ    whether to flip the schematic along the Z axis
+     *
      */
     public void fork(@NotNull GenerationUnit unit, @NotNull Point position, boolean flipX, boolean flipY, boolean flipZ) {
-        if (locked) {
+        if (locked.get()) {
             throw new IllegalStateException("Cannot fork a locked schematic.");
         }
 
@@ -286,6 +290,7 @@ public final class Schematic implements Block.Setter {
     /**
      * @param position the {@link Point} of the block to set
      * @param block    the {@link Block} to set
+     *
      */
     public void setBlock(@NotNull Point position, @NotNull Block block) {
         setBlock(position.blockX(), position.blockY(), position.blockZ(), block);
@@ -300,6 +305,7 @@ public final class Schematic implements Block.Setter {
      * @param y       the Y coordinate
      * @param z       the Z coordinate
      * @param stateId the state ID
+     *
      */
     public void setBlock(int x, int y, int z, short stateId) {
         blocks[getBlockIndex(x, y, z)] = stateId;
@@ -308,6 +314,7 @@ public final class Schematic implements Block.Setter {
     /**
      * @param position the {@link Point} to place the block at
      * @param stateId  the state id of the block to place.
+     *
      */
     public void setBlock(@NotNull Point position, short stateId) {
         setBlock(position.blockX(), position.blockY(), position.blockZ(), stateId);
@@ -315,6 +322,7 @@ public final class Schematic implements Block.Setter {
 
     /**
      * @return the width of this schematic
+     *
      */
     public int getWidth() {
         return width;
@@ -322,6 +330,7 @@ public final class Schematic implements Block.Setter {
 
     /**
      * @return the height of this schematic
+     *
      */
     public int getHeight() {
         return height;
@@ -329,6 +338,7 @@ public final class Schematic implements Block.Setter {
 
     /**
      * @return the length of the schematic
+     *
      */
     public int getLength() {
         return length;
@@ -338,6 +348,7 @@ public final class Schematic implements Block.Setter {
      * Gets the offset in the x-axis used when {@link #build(Instance, Point)} or {@link #apply(Point, boolean, boolean, boolean, Block.Setter)} are called.
      *
      * @return the x offset
+     *
      */
     public int getOffsetX() {
         return offsetX;
@@ -347,6 +358,7 @@ public final class Schematic implements Block.Setter {
      * Gets the offset in the y-axis used when {@link #build(Instance, Point)} or {@link #apply(Point, boolean, boolean, boolean, Block.Setter)} are called.
      *
      * @return the y offset
+     *
      */
     public int getOffsetY() {
         return offsetY;
@@ -356,6 +368,7 @@ public final class Schematic implements Block.Setter {
      * Gets the offset in the z-axis used when {@link #build(Instance, Point)} or {@link #apply(Point, boolean, boolean, boolean, Block.Setter)} are called.
      *
      * @return the z offset
+     *
      */
     public int getOffsetZ() {
         return offsetZ;
@@ -365,6 +378,7 @@ public final class Schematic implements Block.Setter {
      * Gets the area of this schematic. ({@code width} * {@code height} * {@code length})
      *
      * @return the area of this schematic
+     *
      */
     public int getArea() {
         return area;
@@ -372,22 +386,25 @@ public final class Schematic implements Block.Setter {
 
     /**
      * @return true if this schematic is locked, false otherwise
+     *
      */
     public boolean isLocked() {
-        return locked;
+        return locked.getAcquire();
     }
 
     /**
      * Sets the locked state of this schematic. Locked schematics can't be built, applied or forked, or saved.
      *
      * @param locked whether to lock this schematic
+     *
      */
     public void setLocked(boolean locked) {
-        this.locked = locked;
+        this.locked.setRelease(locked);
     }
 
     /**
      * @param offset the {@link Point} to offset this schematic by
+     *
      */
     public void setOffset(@NotNull Point offset) {
         setOffset(offset.blockX(), offset.blockY(), offset.blockZ());
@@ -397,6 +414,7 @@ public final class Schematic implements Block.Setter {
      * @param x new x offset
      * @param y new y offset
      * @param z new z offset
+     *
      */
     public void setOffset(int x, int y, int z) {
         offsetX = x;
@@ -407,8 +425,8 @@ public final class Schematic implements Block.Setter {
     /**
      * @param instance the {@link Instance} to check
      * @param position the {@link Point} to check
-     *
      * @return {@code true} if the given position is within the bounds of the given instance, {@code false} otherwise. If either the instance or the position is null, false is returned.
+     *
      */
     public boolean isPlaceable(@Nullable Instance instance, @Nullable Point position) {
         if (instance == null || position == null) {

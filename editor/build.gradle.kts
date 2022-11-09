@@ -31,9 +31,14 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+tasks {
+    compileJava {
+        options.encoding = "UTF-8"
+    }
+}
 
 dependencies {
     implementation(project(":core"))
 
-    implementation("com.github.Minestom:Minestom:7be96b7679")
+    implementation("com.github.Minestom:Minestom:${rootProject.extra["minestomVersion"]}")
 }

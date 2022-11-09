@@ -25,10 +25,7 @@ package dev.hypera.scaffolding.editor.commands;
 import dev.hypera.scaffolding.Scaffolding;
 import dev.hypera.scaffolding.editor.Clipboard;
 import dev.hypera.scaffolding.editor.ScaffoldingEditor;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.stream.Stream;
+import dev.hypera.scaffolding.schematic.Schematic;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.Command;
@@ -37,6 +34,17 @@ import net.minestom.server.command.builder.arguments.ArgumentWord;
 import net.minestom.server.command.builder.suggestion.SuggestionEntry;
 import net.minestom.server.entity.Player;
 import org.jglrxavpok.hephaistos.nbt.NBTException;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.DecimalFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Stream;
 
 public class LoadCommand extends Command {
 
@@ -55,18 +63,29 @@ public class LoadCommand extends Command {
             }
         });
 
+
         addSyntax((sender, context) -> {
             if (sender instanceof Player player) {
                 try {
                     String schematicName = context.get(nameArgument);
-
                     Clipboard clipboard = ScaffoldingEditor.getClipboard(player);
+                    CompletableFuture<Long> ms = CompletableFuture.completedFuture(System.currentTimeMillis());
 
-                    Scaffolding.fromFile(ScaffoldingEditor.SCHEMATICS_PATH.resolve(schematicName).toFile(), clipboard.getSchematic()).thenRun(() -> {
-                        player.sendMessage(Component.text("Loaded schematic " + schematicName, NamedTextColor.GRAY));
+                    CompletableFuture<Schematic> cmp = Scaffolding.fromFile(ScaffoldingEditor.SCHEMATICS_PATH.resolve(schematicName).toFile(), clipboard.getSchematic());
+                    cmp.whenCompleteAsync((schematic, throwable) -> {
+                       if(throwable != null) {
+                           player.sendMessage(Component.text("Error while loading schematic: " + throwable.getLocalizedMessage()));
+                           throwable.printStackTrace();
+                           return;
+                       }
+                        String formatted = DecimalFormat.getInstance().format((System.currentTimeMillis() - ms.join()) / 1000.0);
+                        player.sendMessage(Component
+                                .text("Loaded schematic " + schematicName + " with size of blocks: " + clipboard.getSchematic().getArea() + " in seconds: " + formatted, NamedTextColor.GRAY)
+                        );
                     });
                 } catch (IOException | NBTException e) {
-                    player.sendMessage("Failed to load schematic");
+                    player.sendMessage("Failed to load schematic" + e.getLocalizedMessage());
+                    e.printStackTrace();
                 }
             }
         }, nameArgument);
