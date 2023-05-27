@@ -1,4 +1,12 @@
 # Scaffolding
+
+> **Warning** **This project is no longer maintained.**  
+> We will no longer be accepting pull requests, addressing issues or making any future releases.
+
+### Alternatives
+ - [com.github.hollow-cube.common:schem](https://github.com/hollow-cube/common/tree/main/modules/schem)
+---
+
 Scaffolding is a library for Minestom that allows you to load and place schematics.
 > This library is very early in development and has too many bugs to count. For your own safety, you should not use it in a production environment.
 
